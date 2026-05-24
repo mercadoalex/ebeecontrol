@@ -34,7 +34,12 @@ The system operates in a continuous loop: **discover** high-risk services → **
 
 ## Architecture
 
+
 ```
+<p align="center">
+  <img src="eBeeControl_arquitectura.png" alt="eBeeControl Architecture" width="800"/>
+</p>
+
 ┌─────────────────────────────────────────────────────────────────┐
 │                        eBeeControl Agent                         │
 │                    (Gemini / Google Cloud Agent Builder)          │
@@ -47,6 +52,7 @@ The system operates in a continuous loop: **discover** high-risk services → **
     │Dynatrace│ │ Koney │ │Tetragon│ │Vertex │ │ Kubernetes │
     │MCP Server│ │Deployer│ │Monitor │ │  AI   │ │    API     │
     └─────────┘ └───────┘ └────────┘ └───────┘ └────────────┘
+
 ```
 
 ## Core Components
@@ -117,4 +123,8 @@ tests/
 
 ## License
 
-Proprietary — All rights reserved.
+This project is licensed under the [Apache License 2.0](LICENSE).
+
+---
+
+<p align="center">Made with ❤️ by Alex</p>
