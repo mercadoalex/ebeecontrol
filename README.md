@@ -33,25 +33,10 @@ The system operates in a continuous loop: **discover** high-risk services → **
 - **Operate 24/7 without intervention** — Run the full detection-response-learning cycle continuously with health monitoring, graceful degradation, and automated recovery.
 
 ## Architecture
+
 <p align="center">
   <img src="eBeeControl_arquitectura.png" alt="eBeeControl Architecture" width="800"/>
 </p>
-```
-
-┌─────────────────────────────────────────────────────────────────┐
-│                        eBeeControl Agent                         │
-│                    (Gemini / Google Cloud Agent Builder)          │
-├─────────────────────────────────────────────────────────────────┤
-│  Discovery → Deployment → Detection → Assessment → Response     │
-│                         → Reporting → Learning                   │
-└────────┬──────────┬──────────┬──────────┬──────────┬────────────┘
-         │          │          │          │          │
-    ┌────▼────┐ ┌───▼───┐ ┌───▼────┐ ┌───▼───┐ ┌───▼────────┐
-    │Dynatrace│ │ Koney │ │Tetragon│ │Vertex │ │ Kubernetes │
-    │MCP Server│ │Deployer│ │Monitor │ │  AI   │ │    API     │
-    └─────────┘ └───────┘ └────────┘ └───────┘ └────────────┘
-
-```
 
 ## Core Components
 
@@ -125,4 +110,4 @@ This project is licensed under the [Apache License 2.0](LICENSE).
 
 ---
 
-<p align="center">Made with ❤️ by Alex</p>
+Made with ❤️ by Alex</p>
