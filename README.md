@@ -33,12 +33,10 @@ The system operates in a continuous loop: **discover** high-risk services → **
 - **Operate 24/7 without intervention** — Run the full detection-response-learning cycle continuously with health monitoring, graceful degradation, and automated recovery.
 
 ## Architecture
-
-
-```
 <p align="center">
   <img src="eBeeControl_arquitectura.png" alt="eBeeControl Architecture" width="800"/>
 </p>
+```
 
 ┌─────────────────────────────────────────────────────────────────┐
 │                        eBeeControl Agent                         │
