@@ -175,34 +175,6 @@ resource "google_compute_firewall" "internal" {
   source_ranges = ["10.10.0.0/24", "10.20.0.0/16", "10.30.0.0/20"]
 }
 
-# Deploy eBeeControl via Helm
-resource "helm_release" "ebeecontrol" {
-  name       = "ebeecontrol"
-  chart      = "${path.module}/../helm/ebeecontrol"
-  namespace  = var.namespace
-  create_namespace = true
-
-  set {
-    name  = "image.repository"
-    value = "gcr.io/${var.project_id}/ebeecontrol"
-  }
-
-  set {
-    name  = "image.tag"
-    value = var.image_tag
-  }
-
-  set {
-    name  = "dynatrace.metricsEndpoint"
-    value = var.dynatrace_metrics_endpoint
-  }
-
-  set {
-    name  = "dynatrace.logEndpoint"
-    value = var.dynatrace_log_endpoint
-  }
-
-  depends_on = [
-    google_container_node_pool.primary,
-  ]
-}
+# Note: eBeeControl application deployment is handled by the GitHub Actions
+# deploy job (helm upgrade), not by Terraform. Terraform only manages
+# infrastructure (GKE cluster, VPC, networking, RBAC).
