@@ -45,9 +45,11 @@ jobs:
 
   # ─────────────────────────────────────────────
   # Job 2: Terraform — Provision GKE infrastructure
+  # Only runs when terraform files change or on manual dispatch
   # ─────────────────────────────────────────────
   infrastructure:
     needs: test
+    if: ${{ github.event.inputs.destroy == 'true' || contains(github.event.head_commit.modified, 'terraform/') }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -94,7 +96,7 @@ jobs:
   # Job 3: Build and push Docker image to GCR
   # ─────────────────────────────────────────────
   build-and-push:
-    needs: infrastructure
+    needs: test
     if: ${{ github.event.inputs.destroy != 'true' }}
     runs-on: ubuntu-latest
 
