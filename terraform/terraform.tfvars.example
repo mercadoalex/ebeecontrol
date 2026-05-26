@@ -1,0 +1,22 @@
+# eBeeControl - Terraform Variables Example
+# Copy this file to terraform.tfvars and fill in your values
+
+project_id   = "ebeecontrol"
+region       = "us-central1"
+zone         = "us-central1-a"
+cluster_name = "ebeecontrol-cluster"
+
+# Node pool sizing
+node_count     = 2
+min_node_count = 1
+max_node_count = 4
+machine_type   = "e2-medium"
+
+# Deployment
+namespace = "ebeecontrol"
+image_tag = "1.0.0"
+
+# Dynatrace (fill in your environment details)
+dynatrace_metrics_endpoint = "https://YOUR_ENV.live.dynatrace.com/api/v2/metrics/ingest"
+dynatrace_log_endpoint     = "https://YOUR_ENV.live.dynatrace.com/api/v2/logs/ingest"
+dynatrace_api_token        = ""
