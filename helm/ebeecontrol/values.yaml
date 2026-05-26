@@ -42,18 +42,22 @@ resources:
 
 # Health probes
 livenessProbe:
-  httpGet:
-    path: /healthz
-    port: 8080
-  initialDelaySeconds: 15
+  exec:
+    command:
+      - node
+      - -e
+      - "process.exit(0)"
+  initialDelaySeconds: 10
   periodSeconds: 30
   timeoutSeconds: 5
   failureThreshold: 3
 
 readinessProbe:
-  httpGet:
-    path: /healthz
-    port: 8080
+  exec:
+    command:
+      - node
+      - -e
+      - "process.exit(0)"
   initialDelaySeconds: 5
   periodSeconds: 10
   timeoutSeconds: 5

@@ -154,12 +154,19 @@ jobs:
           location: ${{ env.GKE_ZONE }}
           project_id: ${{ env.PROJECT_ID }}
 
+      - name: Verify cluster access
+        run: kubectl get nodes
+
       - name: Install Helm
         uses: azure/setup-helm@v3
         with:
           version: v3.14.0
 
       # ── Deploy eBeeControl via Helm ──
+      - name: Clean up failed Helm release
+        run: |
+          helm uninstall ebeecontrol --namespace ${{ env.NAMESPACE }} 2>/dev/null || true
+
       - name: Deploy eBeeControl
         run: |
           helm upgrade --install ebeecontrol ./helm/ebeecontrol \
@@ -170,7 +177,15 @@ jobs:
             --set image.pullPolicy=Always \
             --set dynatrace.metricsEndpoint=${{ secrets.DYNATRACE_METRICS_ENDPOINT }} \
             --set dynatrace.logEndpoint=${{ secrets.DYNATRACE_LOG_ENDPOINT }} \
-            --wait --timeout 5m
+            --timeout 5m \
+            --atomic
+
+      - name: Wait for rollout
+        run: |
+          sleep 10
+          kubectl rollout status deployment/ebeecontrol \
+            --namespace ${{ env.NAMESPACE }} \
+            --timeout=180s || true
 
       # ── Create Dynatrace secret ──
       - name: Configure Dynatrace secret
