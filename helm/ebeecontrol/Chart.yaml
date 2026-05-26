@@ -1,0 +1,16 @@
+apiVersion: v2
+name: ebeecontrol
+description: Autonomous Deception Engine for Kubernetes - Gemini-powered honeytoken deployment and monitoring
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - security
+  - deception
+  - honeytokens
+  - ebpf
+  - kubernetes
+  - gemini
+  - dynatrace
+maintainers:
+  - name: Alex

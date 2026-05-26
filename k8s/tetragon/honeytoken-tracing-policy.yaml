@@ -1,0 +1,112 @@
+# eBeeControl — Tetragon TracingPolicy for Honeytoken Access Detection
+#
+# This policy attaches eBPF kprobes to file system operations (open, read, write, stat)
+# on known honeytoken paths. When any process accesses a honeytoken file, Tetragon
+# generates an event with full process context (PID, binary path, UID, etc.)
+#
+# The eBeeControl agent subscribes to these events via the Tetragon gRPC API
+# and triggers the threat assessment → response → reporting → learning pipeline.
+#
+# Validates: Requirements 3.1, 3.2, 3.3, 3.4
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: ebeecontrol-honeytoken-monitor
+  namespace: ebeecontrol
+  labels:
+    app: ebeecontrol
+    component: tetragon-monitor
+spec:
+  # Monitor file open operations on honeytoken paths
+  kprobes:
+    - call: "fd_install"
+      syscall: false
+      args:
+        - index: 0
+          type: int
+        - index: 1
+          type: "file"
+      selectors:
+        - matchArgs:
+            - index: 1
+              operator: "Prefix"
+              values:
+                # Decoy secrets — Kubernetes service account tokens
+                - "/var/run/secrets/kubernetes.io/serviceaccount/decoy-token"
+                # Decoy files — Configuration credentials
+                - "/tmp/.config/credentials"
+                # Decoy credentials — SSH keys
+                - "/home/app/.ssh/id_rsa_"
+                # Generic honeytoken paths
+                - "/etc/secrets/decoy"
+                - "/var/data/honeytoken"
+
+    # Monitor file read operations (sys_read on honeytoken file descriptors)
+    - call: "sys_read"
+      syscall: true
+      args:
+        - index: 0
+          type: "fd"
+        - index: 2
+          type: size_t
+      selectors:
+        - matchArgs:
+            - index: 0
+              operator: "Prefix"
+              values:
+                - "/var/run/secrets/kubernetes.io/serviceaccount/decoy-token"
+                - "/tmp/.config/credentials"
+                - "/home/app/.ssh/id_rsa_"
+                - "/etc/secrets/decoy"
+                - "/var/data/honeytoken"
+
+    # Monitor file stat operations (sys_newstat)
+    - call: "sys_newstat"
+      syscall: true
+      args:
+        - index: 0
+          type: "string"
+      selectors:
+        - matchArgs:
+            - index: 0
+              operator: "Prefix"
+              values:
+                - "/var/run/secrets/kubernetes.io/serviceaccount/decoy-token"
+                - "/tmp/.config/credentials"
+                - "/home/app/.ssh/id_rsa_"
+                - "/etc/secrets/decoy"
+                - "/var/data/honeytoken"
+---
+# Dynamic honeytoken path policy — updated by the eBeeControl agent
+# when new honeytokens are deployed to pods.
+#
+# The agent generates this policy dynamically based on the honeytoken registry.
+# This template shows the structure; the actual paths are injected at runtime.
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: ebeecontrol-dynamic-honeytokens
+  namespace: ebeecontrol
+  labels:
+    app: ebeecontrol
+    component: tetragon-monitor
+    managed-by: ebeecontrol-agent
+  annotations:
+    ebeecontrol.io/last-updated: "2024-01-01T00:00:00Z"
+    ebeecontrol.io/honeytoken-count: "0"
+spec:
+  kprobes:
+    - call: "fd_install"
+      syscall: false
+      args:
+        - index: 0
+          type: int
+        - index: 1
+          type: "file"
+      selectors:
+        - matchArgs:
+            - index: 1
+              operator: "Prefix"
+              values:
+                # Placeholder — dynamically populated by the agent
+                - "/ebeecontrol/placeholder"

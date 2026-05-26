@@ -1,0 +1,17 @@
+🐝 eBeeControl deployed successfully!
+
+1. Get the health endpoint:
+   kubectl port-forward svc/{{ include "ebeecontrol.fullname" . }} 8080:{{ .Values.service.port }}
+   curl http://localhost:8080/healthz
+
+2. Check agent logs:
+   kubectl logs -f deployment/{{ include "ebeecontrol.fullname" . }}
+
+3. Configure Dynatrace API token:
+   kubectl create secret generic {{ .Values.dynatrace.apiTokenSecret.name }} \
+     --from-literal={{ .Values.dynatrace.apiTokenSecret.key }}=YOUR_DYNATRACE_TOKEN \
+     -n {{ .Release.Namespace }}
+
+4. The agent will begin its first discovery cycle in {{ .Values.config.discovery.intervalMinutes }} minutes.
+
+For more information, visit: https://github.com/alexmarket/ebeecontrol

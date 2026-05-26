@@ -148,7 +148,7 @@ export class DynatraceMetricsIngestionClient implements DynatraceMetricsClient {
     // Send in batches of maxBatchSize
     for (let i = 0; i < itemsToSend.length; i += this.config.batchConfig.maxBatchSize) {
       const batch = itemsToSend.slice(i, i + this.config.batchConfig.maxBatchSize);
-      const payloads = batch.map(item => item.payload);
+      const payloads = batch.map(item => item.payload) as (HoneytokenRegistryMetricPayload | ComponentHealthMetricPayload | LearningMetricPayload)[];
 
       try {
         await this.sendToApi(payloads);

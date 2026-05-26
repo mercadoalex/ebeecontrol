@@ -1,0 +1,126 @@
+# eBeeControl Helm Values
+# Override these values for your environment
+
+replicaCount: 1
+
+image:
+  repository: gcr.io/ebeecontrol/ebeecontrol
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "ebeecontrol"
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# Resource limits
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Health probes
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  initialDelaySeconds: 15
+  periodSeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8080
+
+# eBeeControl configuration
+config:
+  discovery:
+    intervalMinutes: 60
+  healthCheck:
+    intervalSeconds: 30
+    responseTimeoutSeconds: 5
+    componentTimeoutSeconds: 10
+  deployment:
+    maxHoneytokensPerPod: 5
+    deploymentTimeoutSeconds: 30
+  response:
+    isolationTimeoutSeconds: 10
+    isolationMaxRetries: 3
+    isolationRetryIntervalSeconds: 5
+    ipBlockMaxRetries: 3
+    ipBlockRetryIntervalSeconds: 5
+  reporting:
+    reportRetentionDays: 90
+    reportGenerationTimeoutSeconds: 60
+    reportGenerationMaxRetries: 3
+  learning:
+    retrainingIntervalHours: 24
+    minimumOutcomeRecords: 50
+    outcomeSubmissionTimeoutSeconds: 60
+  auditLog:
+    retentionDays: 90
+
+# Dynatrace integration
+dynatrace:
+  # Dynatrace environment URL (e.g., https://abc12345.live.dynatrace.com)
+  environmentUrl: ""
+  # Metrics API v2 endpoint
+  metricsEndpoint: ""
+  # Log Ingestion API endpoint
+  logEndpoint: ""
+  # API token secret reference
+  apiTokenSecret:
+    name: ebeecontrol-dynatrace
+    key: api-token
+  ingestion:
+    requestTimeoutSeconds: 10
+    retryMaxRetries: 5
+    retryInitialBackoffSeconds: 2
+    retryBackoffMultiplier: 2
+    retryMaxBackoffSeconds: 32
+    batchMaxSize: 100
+    batchFlushIntervalSeconds: 5
+
+# Notifications
+notifications:
+  channelEndpoint: ""
+
+# Node selector, tolerations, affinity
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Pod annotations (e.g., for Dynatrace OneAgent injection)
+podAnnotations: {}

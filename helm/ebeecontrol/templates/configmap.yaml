@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ebeecontrol.fullname" . }}-config
+  labels:
+    {{- include "ebeecontrol.labels" . | nindent 4 }}
+data:
+  config.json: |
+    {
+      "discovery": {
+        "intervalMinutes": {{ .Values.config.discovery.intervalMinutes }}
+      },
+      "healthCheck": {
+        "intervalSeconds": {{ .Values.config.healthCheck.intervalSeconds }},
+        "responseTimeoutSeconds": {{ .Values.config.healthCheck.responseTimeoutSeconds }},
+        "componentTimeoutSeconds": {{ .Values.config.healthCheck.componentTimeoutSeconds }}
+      },
+      "deployment": {
+        "maxHoneytokensPerPod": {{ .Values.config.deployment.maxHoneytokensPerPod }},
+        "deploymentTimeoutSeconds": {{ .Values.config.deployment.deploymentTimeoutSeconds }}
+      },
+      "response": {
+        "isolationTimeoutSeconds": {{ .Values.config.response.isolationTimeoutSeconds }},
+        "isolationMaxRetries": {{ .Values.config.response.isolationMaxRetries }},
+        "isolationRetryIntervalSeconds": {{ .Values.config.response.isolationRetryIntervalSeconds }},
+        "ipBlockMaxRetries": {{ .Values.config.response.ipBlockMaxRetries }},
+        "ipBlockRetryIntervalSeconds": {{ .Values.config.response.ipBlockRetryIntervalSeconds }}
+      },
+      "reporting": {
+        "reportRetentionDays": {{ .Values.config.reporting.reportRetentionDays }},
+        "reportGenerationTimeoutSeconds": {{ .Values.config.reporting.reportGenerationTimeoutSeconds }},
+        "reportGenerationMaxRetries": {{ .Values.config.reporting.reportGenerationMaxRetries }}
+      },
+      "learning": {
+        "retrainingIntervalHours": {{ .Values.config.learning.retrainingIntervalHours }},
+        "minimumOutcomeRecords": {{ .Values.config.learning.minimumOutcomeRecords }},
+        "outcomeSubmissionTimeoutSeconds": {{ .Values.config.learning.outcomeSubmissionTimeoutSeconds }}
+      },
+      "auditLog": {
+        "retentionDays": {{ .Values.config.auditLog.retentionDays }}
+      },
+      "notifications": {
+        "channelEndpoint": {{ .Values.notifications.channelEndpoint | quote }}
+      },
+      "dynatraceIngestion": {
+        "metricsEndpoint": {{ .Values.dynatrace.metricsEndpoint | quote }},
+        "logEndpoint": {{ .Values.dynatrace.logEndpoint | quote }},
+        "apiToken": "",
+        "requestTimeoutSeconds": {{ .Values.dynatrace.ingestion.requestTimeoutSeconds }},
+        "retryConfig": {
+          "maxRetries": {{ .Values.dynatrace.ingestion.retryMaxRetries }},
+          "initialBackoffSeconds": {{ .Values.dynatrace.ingestion.retryInitialBackoffSeconds }},
+          "backoffMultiplier": {{ .Values.dynatrace.ingestion.retryBackoffMultiplier }},
+          "maxBackoffSeconds": {{ .Values.dynatrace.ingestion.retryMaxBackoffSeconds }}
+        },
+        "batchConfig": {
+          "maxBatchSize": {{ .Values.dynatrace.ingestion.batchMaxSize }},
+          "flushIntervalSeconds": {{ .Values.dynatrace.ingestion.batchFlushIntervalSeconds }}
+        }
+      }
+    }

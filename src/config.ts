@@ -243,7 +243,7 @@ export function validateConfig(config: EbeecontrolConfig): void {
  * @throws ConfigValidationError if the resulting config is invalid
  */
 export function loadConfig(partial?: Partial<DeepPartial<EbeecontrolConfig>>): EbeecontrolConfig {
-  const config = deepMerge(DEFAULT_CONFIG, partial ?? {}) as EbeecontrolConfig;
+  const config = deepMerge(DEFAULT_CONFIG as unknown as Record<string, unknown>, (partial ?? {}) as Record<string, unknown>) as unknown as EbeecontrolConfig;
   validateConfig(config);
   return config;
 }

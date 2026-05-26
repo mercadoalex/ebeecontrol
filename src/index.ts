@@ -216,3 +216,32 @@ export async function stopAgent(components: AgentComponents): Promise<void> {
   // Stop Tetragon monitor
   await components.tetragonMonitor.stop();
 }
+
+// Auto-start when running as main process
+const isMainModule = typeof require !== 'undefined' && require.main === module;
+if (isMainModule || process.argv[1]?.endsWith('index.js')) {
+  console.log('🐝 eBeeControl starting...');
+
+  startAgent()
+    .then((handle) => {
+      console.log('🐝 eBeeControl agent is running');
+      console.log(`   Discovery cycle: every ${handle.components.config.discovery.intervalMinutes} minutes`);
+      console.log(`   Health check: every ${handle.components.config.healthCheck.intervalSeconds} seconds`);
+      console.log('   Press Ctrl+C to stop');
+
+      // Handle graceful shutdown
+      const shutdown = async () => {
+        console.log('\n🐝 eBeeControl shutting down...');
+        await handle.stop();
+        console.log('🐝 eBeeControl stopped');
+        process.exit(0);
+      };
+
+      process.on('SIGINT', shutdown);
+      process.on('SIGTERM', shutdown);
+    })
+    .catch((error) => {
+      console.error('🐝 eBeeControl failed to start:', error);
+      process.exit(1);
+    });
+}
