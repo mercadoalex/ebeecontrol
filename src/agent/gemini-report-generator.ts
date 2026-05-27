@@ -1,48 +1,38 @@
 /**
  * Real Gemini Report Generator
  *
- * Uses Google Cloud Vertex AI (Gemini) to generate forensic reports
- * from incident data. Replaces the mock report generator with actual
- * AI-powered analysis.
+ * Uses Google Gen AI SDK with API key for direct Gemini access.
  *
  * Prerequisites:
- *   - GOOGLE_CLOUD_PROJECT environment variable set
- *   - Application Default Credentials configured
- *   - Vertex AI API enabled on the project
+ *   - GEMINI_API_KEY environment variable set
+ *   - Get a key from https://aistudio.google.com/apikey
  */
 
-import { VertexAI } from '@google-cloud/vertexai';
+import { GoogleGenAI } from '@google/genai';
 import { GeminiGenerateFn } from './report-generator.js';
 
 /**
  * Configuration for the Gemini client.
  */
 export interface GeminiConfig {
-  /** GCP project ID (default: from GOOGLE_CLOUD_PROJECT env var) */
-  projectId?: string;
-  /** GCP region (default: us-central1) */
-  location?: string;
-  /** Gemini model name (default: gemini-1.5-flash) */
+  /** Gemini API key (default: from GEMINI_API_KEY env var) */
+  apiKey?: string;
+  /** Gemini model name (default: gemini-2.0-flash) */
   model?: string;
 }
 
 /**
- * Creates a real Gemini generate function that calls Vertex AI.
- *
- * This function is compatible with the GeminiGenerateFn interface
- * used by createReportGenerator().
- *
- * Usage:
- *   const gemini = createGeminiClient({ projectId: 'ebeecontrol' });
- *   const reportGenerator = createReportGenerator(gemini);
+ * Creates a real Gemini generate function using API key auth.
  */
 export function createGeminiClient(config: GeminiConfig = {}): GeminiGenerateFn {
-  const projectId = config.projectId || process.env.GOOGLE_CLOUD_PROJECT || 'ebeecontrol';
-  const location = config.location || 'us-central1';
-  const modelName = config.model || 'gemini-1.5-flash';
+  const apiKey = config.apiKey || process.env.GEMINI_API_KEY || '';
+  const modelName = config.model || 'gemini-2.0-flash';
 
-  const vertexAI = new VertexAI({ project: projectId, location });
-  const model = vertexAI.getGenerativeModel({ model: modelName });
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY not set. Get one from https://aistudio.google.com/apikey');
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
 
   return async (prompt: string): Promise<string> => {
     const systemInstruction = `You are a cybersecurity forensic analyst for eBeeControl, an autonomous deception engine for Kubernetes. 
@@ -53,26 +43,21 @@ Your job is to analyze honeytoken access incidents and provide:
 
 Be concise, technical, and actionable. Focus on the security implications.`;
 
-    const result = await model.generateContent({
-      contents: [
-        { role: 'user', parts: [{ text: `${systemInstruction}\n\n${prompt}` }] },
-      ],
+    const response = await ai.models.generateContent({
+      model: modelName,
+      contents: `${systemInstruction}\n\n${prompt}`,
     });
 
-    const response = result.response;
-    const text = response.candidates?.[0]?.content?.parts?.[0]?.text;
-
+    const text = response.text;
     if (!text) {
       throw new Error('Gemini returned empty response');
     }
-
     return text;
   };
 }
 
 /**
  * Creates a fallback generate function that works without Gemini.
- * Used when Vertex AI is not available (local dev, missing credentials).
  */
 export function createFallbackGenerator(): GeminiGenerateFn {
   return async (prompt: string): Promise<string> => {
@@ -82,7 +67,7 @@ export function createFallbackGenerator(): GeminiGenerateFn {
 
 /**
  * Creates a Gemini client with automatic fallback.
- * Tries to use real Gemini, falls back to local generation if unavailable.
+ * Tries real Gemini first, falls back to local generation if unavailable.
  */
 export function createGeminiClientWithFallback(config: GeminiConfig = {}): GeminiGenerateFn {
   let useRealGemini = true;
