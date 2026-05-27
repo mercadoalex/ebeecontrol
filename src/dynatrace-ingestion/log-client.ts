@@ -246,13 +246,22 @@ export class DynatraceLogIngestionClient implements DynatraceLogClient {
     );
 
     try {
+      // Dynatrace Log Ingestion API expects an array of log entries
+      // Each entry must have a "content" field with the log message
+      const logEntries = payloads.map(payload => ({
+        content: JSON.stringify(payload),
+        'log.source': 'ebeecontrol',
+        'dt.entity.process_group': 'ebeecontrol-agent',
+        timestamp: (payload as any).timestamp || new Date().toISOString(),
+      }));
+
       const options: FetchOptions = {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=utf-8',
           'Authorization': `Api-Token ${this.config.apiToken}`,
         },
-        body: JSON.stringify(payloads),
+        body: JSON.stringify(logEntries),
         signal: controller.signal,
       };
 

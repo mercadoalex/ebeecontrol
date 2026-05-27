@@ -23,6 +23,10 @@ import { createReportGenerator, ReportGenerator } from './agent/report-generator
 import { DynatraceMetricsIngestionClient } from './dynatrace-ingestion/metrics-client';
 import { DynatraceLogIngestionClient } from './dynatrace-ingestion/log-client';
 import { rankServices } from './utils/ranking';
+import { createK8sDeployer } from './koney/k8s-deployer';
+import { createK8sResponseActions } from './koney/k8s-response';
+import { createGeminiClientWithFallback } from './agent/gemini-report-generator';
+import { createHttpClient } from './utils/http-client';
 
 /**
  * All instantiated components of the ebeecontrol system.
@@ -70,8 +74,8 @@ export function createComponents(
   // Load and validate configuration
   const config = loadConfig(configOverrides as any);
 
-  // Default fetch function (no-op for testing; real implementation would use node-fetch)
-  const fetch: FetchFn = fetchFn ?? (async () => ({ ok: true, status: 200, json: async () => ({}) }));
+  // Default fetch function (uses real HTTP in production, mock for testing)
+  const fetch: FetchFn = fetchFn ?? createHttpClient();
 
   // Instantiate core components
   const dynatraceClient = new DynatraceClient(
@@ -79,7 +83,9 @@ export function createComponents(
     fetch
   );
 
-  const koneyDeployer = createKoneyDeployer();
+  // Use real K8s deployer when running in cluster, mock otherwise
+  const useRealK8s = process.env.KUBERNETES_SERVICE_HOST !== undefined;
+  const koneyDeployer = useRealK8s ? createK8sDeployer() : createKoneyDeployer();
   const tetragonMonitor = createTetragonMonitor();
   const registry = createHoneytokenRegistry();
   const auditLog = createAuditLog({ retentionDays: config.auditLog.retentionDays });
@@ -142,9 +148,9 @@ export function createComponents(
   // Wire learning feedback loop
   const learningFeedbackLoop = createLearningFeedbackLoop(vertexAiTrainer, auditLog);
 
-  // Wire report generator (using a mock Gemini function; real implementation would call Gemini API)
+  // Wire report generator (uses real Gemini with fallback)
   const reportGenerator = createReportGenerator(
-    async (prompt: string) => `Forensic report generated for: ${prompt.substring(0, 50)}...`
+    createGeminiClientWithFallback({ projectId: config.notifications.channelEndpoint ? 'ebeecontrol' : undefined })
   );
 
   return {

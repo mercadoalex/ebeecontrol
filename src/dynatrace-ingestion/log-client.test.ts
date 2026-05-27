@@ -165,7 +165,7 @@ describe('DynatraceLogIngestionClient', () => {
         expect.objectContaining({
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json; charset=utf-8',
             'Authorization': 'Api-Token dt0c01.test-token',
           },
         })
