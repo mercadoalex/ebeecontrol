@@ -99,6 +99,8 @@ export function createEventBroadcaster(
         status: mapRegistryStatus(entry.status),
       };
       await metricsClient.pushHoneytokenRegistryMetric(payload);
+      // Also push as a log entry so dashboard DQL queries can find it
+      await logClient.pushAccessEventLog(payload as any);
     },
 
     /**
@@ -149,6 +151,8 @@ export function createEventBroadcaster(
      */
     async broadcastHealthStatusChange(status: ComponentHealthMetricPayload): Promise<void> {
       await metricsClient.pushComponentHealthMetric(status);
+      // Also push as log for dashboard queries
+      await logClient.pushAccessEventLog(status as any);
     },
 
     /**
@@ -177,6 +181,8 @@ export function createEventBroadcaster(
      */
     async broadcastLearningMetrics(metrics: LearningMetricPayload): Promise<void> {
       await metricsClient.pushLearningMetrics(metrics);
+      // Also push as log for dashboard queries
+      await logClient.pushAccessEventLog(metrics as any);
     },
 
     /**
