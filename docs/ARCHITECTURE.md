@@ -9,7 +9,7 @@ The system combines five technologies:
 - **eBPF (Tetragon)** for kernel-level detection
 - **[Koney](https://github.com/dynatrace-oss/koney)** (Dynatrace OSS) — Kubernetes operator for automated honeytoken deployment, rotation, and monitoring via DeceptionPolicy CRDs
 - **Dynatrace** for observability and context
-- **Vertex AI** for adaptive learning
+- **Gemini Enterprise Agent Platform** for adaptive learning
 
 ---
 
@@ -34,7 +34,7 @@ The system combines five technologies:
 | 4. Assess | Query context, classify threat level | Gemini + Dynatrace | < 5 sec |
 | 5. Respond | Isolate pod, block IP, deploy more traps | K8s NetworkPolicy | < 10 sec |
 | 6. Report | Generate forensic report | Gemini AI | < 60 sec |
-| 7. Learn | Submit outcome, retrain model | Vertex AI | Async |
+| 7. Learn | Submit outcome, retrain model | Gemini Enterprise Agent Platform | Async |
 
 **Total time from detection to containment: < 15 seconds**
 
@@ -60,7 +60,7 @@ The system combines five technologies:
 └────────┬──────────────────┬──────────────────┬──────────────────┬───────┘
          │                  │                  │                  │
     ┌────▼────┐       ┌────▼────┐       ┌────▼────┐       ┌────▼────┐
-    │Dynatrace│       │  Koney  │       │Tetragon │       │Vertex AI│
+    │Dynatrace│       │  Koney  │       │Tetragon │       │Gemini Enterprise Agent Platform│
     │MCP Server│       │Deployer │       │ Monitor │       │ Trainer │
     │         │       │  (K8s)  │       │ (eBPF)  │       │         │
     └────┬────┘       └────┬────┘       └────┬────┘       └────┬────┘
@@ -169,7 +169,7 @@ Agent receives event via subscription
 ┌─────────────────────────────────────────────────────────┐
 │ ADAPTIVE LEARNING (async)                               │
 │                                                         │
-│  1. Submit outcome to Vertex AI                         │
+│  1. Submit outcome to Gemini Enterprise Agent Platform                         │
 │  2. Include: detection latency, containment success,    │
 │     false positive determination                        │
 │  3. Model retrains every 24h (if 50+ records)           │
@@ -188,7 +188,7 @@ Health Monitor (every 30 sec)
          ├──→ Check Tetragon Monitor (10 sec timeout)
          ├──→ Check Koney Deployer (10 sec timeout)
          ├──→ Check Dynatrace MCP Server (10 sec timeout)
-         └──→ Check Vertex AI Trainer (10 sec timeout)
+         └──→ Check Gemini Enterprise Agent Platform Trainer (10 sec timeout)
                   │
                   ▼
          Component unhealthy?
@@ -320,7 +320,7 @@ Agent ──→ Event Broadcaster ──→ Metrics Client ──→ Dynatrace M
 │  └────────────────────────────────────────────────────────────┘  │
 │                                                                  │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │ Container    │  │  Vertex AI   │  │  Cloud IAM           │  │
+│  │ Container    │  │  Gemini Enterprise Agent Platform   │  │  Cloud IAM           │  │
 │  │ Registry     │  │  (Training)  │  │  (Workload Identity) │  │
 │  └──────────────┘  └──────────────┘  └──────────────────────┘  │
 └─────────────────────────────────────────────────────────────────┘
@@ -349,7 +349,7 @@ Agent ──→ Event Broadcaster ──→ Metrics Client ──→ Dynatrace M
 | CI/CD | GitHub Actions | Automated pipeline |
 | Packaging | Helm | Kubernetes deployment |
 | Detection | Cilium Tetragon (eBPF) | Kernel-level file monitoring |
-| AI/ML | Google Gemini (Vertex AI) | Report generation + placement model |
+| AI/ML | Google Gemini (Gemini Enterprise Agent Platform) | Report generation + placement model |
 | Observability | Dynatrace | Context, anomaly detection, dashboard |
 | Testing | Vitest + fast-check | 728 tests, 24 property-based |
 
@@ -396,7 +396,7 @@ The system has 24 correctness properties validated with property-based testing:
 | eBPF for detection | Kernel-level visibility, cannot be evaded by userspace |
 | Dynatrace for context | Leverages existing observability, no duplicate infrastructure |
 | Dynatrace-native dashboard | No custom UI to maintain, team already uses Dynatrace |
-| Vertex AI for learning | Placement model improves over time without manual policy updates |
+| Gemini Enterprise Agent Platform for learning | Placement model improves over time without manual policy updates |
 | Event-driven + periodic | Detection is instant (event-driven), discovery is scheduled |
 | Assume worst case on missing data | Threats never under-classified due to missing context |
 | Property-based testing | Formal correctness guarantees, not just example-based tests |

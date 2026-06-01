@@ -38,11 +38,11 @@ eBeeControl is the **intelligence layer on top of Koney**. The relationship is:
 │                                                                 │
 │  "The Brain" — Decides WHAT to do                               │
 │                                                                 │
-│  • WHERE to place honeytokens (Gemini + Vertex AI)              │
+│  • WHERE to place honeytokens (Gemini + Gemini Enterprise Agent Platform)              │
 │  • HOW to classify threats (Davis AI context)                   │
 │  • WHAT response to execute (pod isolation, IP block)           │
 │  • WHY it happened (Gemini forensic reports)                    │
-│  • HOW to improve (Vertex AI adaptive learning)                 │
+│  • HOW to improve (Gemini Enterprise Agent Platform adaptive learning)                 │
 └────────────────────────────────┬────────────────────────────────┘
                                  │
                                  │ Creates/updates DeceptionPolicy CRDs
@@ -135,7 +135,7 @@ Using Koney gives us significant advantages in the judging criteria:
 ### 4. Quality of the Idea
 - We're not just using Koney — we're **extending it with AI**
 - Koney deploys traps; eBeeControl decides where, learns from outcomes, and responds autonomously
-- This is the first system to combine Koney + Gemini + Vertex AI
+- This is the first system to combine Koney + Gemini + Gemini Enterprise Agent Platform
 
 ---
 
@@ -147,11 +147,11 @@ Using Koney gives us significant advantages in the judging criteria:
 | Rotate honeytokens | ✅ | ❌ (Koney handles) |
 | Detect access (eBPF) | ✅ | ❌ (Koney + Tetragon) |
 | Forward alerts to Dynatrace | ✅ | ❌ (Koney handles) |
-| **Decide WHERE to place traps** | ❌ | ✅ (Gemini + Vertex AI) |
+| **Decide WHERE to place traps** | ❌ | ✅ (Gemini + Gemini Enterprise Agent Platform) |
 | **Classify threat severity** | ❌ | ✅ (Davis AI context) |
 | **Autonomous response** | ❌ | ✅ (pod isolation, IP block) |
 | **Generate forensic reports** | ❌ | ✅ (Gemini AI) |
-| **Learn from incidents** | ❌ | ✅ (Vertex AI) |
+| **Learn from incidents** | ❌ | ✅ (Gemini Enterprise Agent Platform) |
 | **Adaptive placement** | ❌ | ✅ (model improves over time) |
 | **Full operational dashboard** | ❌ | ✅ (Dynatrace tiles) |
 
@@ -170,7 +170,7 @@ Using Koney gives us significant advantages in the judging criteria:
 │  3. Create DeceptionPolicy CRD → Koney deploys the traps       │
 │  4. Koney detects access → Alert forwarded to Dynatrace         │
 │  5. eBeeControl receives alert → Classify + Respond + Report    │
-│  6. Submit outcome to Vertex AI → Model improves                │
+│  6. Submit outcome to Gemini Enterprise Agent Platform → Model improves                │
 └─────────────────────────────────────────────────────────────────┘
 ```
 

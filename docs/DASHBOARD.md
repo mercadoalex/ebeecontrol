@@ -339,7 +339,7 @@ fetch logs
 
 #### Tile: Model Performance (Table)
 
-**Purpose:** Shows the Vertex AI placement model's accuracy and training status.
+**Purpose:** Shows the Gemini Enterprise Agent Platform placement model's accuracy and training status.
 
 **Columns:** Timestamp, Model Version, Validation Accuracy, Dataset Size, Training Status
 

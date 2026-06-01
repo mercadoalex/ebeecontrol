@@ -341,7 +341,7 @@ Learn from every incident to improve future honeytoken placement. The system get
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│ STEP 1: Submit Outcome Data to Vertex AI                             │
+│ STEP 1: Submit Outcome Data to Gemini Enterprise Agent Platform                             │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  After every response sequence, the agent submits:                  │
@@ -363,7 +363,7 @@ Learn from every incident to improve future honeytoken placement. The system get
 │  Validation: All fields checked for completeness                    │
 │  On invalid data: Throw ValidationError, do not ingest              │
 │                                                                     │
-│  Technology: Vertex AI Trainer (in-memory dataset)                  │
+│  Technology: Gemini Enterprise Agent Platform Trainer (in-memory dataset)                  │
 │  Property tested: Property 14 (Outcome Ingestion)                   │
 └─────────────────────────────────────────────────────────────────────┘
                               │
@@ -400,7 +400,7 @@ Learn from every incident to improve future honeytoken placement. The system get
 │    3. Train new placement optimization model                        │
 │    4. Evaluate against validation set → get accuracy %              │
 │                                                                     │
-│  Technology: Vertex AI (simulated locally, real in production)       │
+│  Technology: Gemini Enterprise Agent Platform (simulated locally, real in production)       │
 │  Property tested: Property 16 (Discovery Scheduling)                │
 └─────────────────────────────────────────────────────────────────────┘
                               │
@@ -425,7 +425,7 @@ Learn from every incident to improve future honeytoken placement. The system get
 │                                                                     │
 │  This ensures the system NEVER gets worse — only better or same.    │
 │                                                                     │
-│  Technology: Vertex AI model evaluation                             │
+│  Technology: Gemini Enterprise Agent Platform model evaluation                             │
 │  Property tested: Property 15 (Model Publish Guard)                 │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -587,7 +587,7 @@ Continuously monitor all system components and automatically recover from failur
 | Tetragon | No new detections, existing responses continue |
 | Koney Operator | No new deployments, existing honeytokens still monitored |
 | Dynatrace MCP | Context queries timeout → default to HIGH classification |
-| Vertex AI | Learning paused, current model stays in use |
+| Gemini Enterprise Agent Platform | Learning paused, current model stays in use |
 | Dynatrace Ingestion | Events buffered locally, delivered when restored |
 
 **Key principle: The system NEVER stops protecting. It degrades gracefully.**
@@ -614,7 +614,7 @@ T+4.100s  │ Access event broadcast to Dynatrace
 T+4.200s  │ Response actions broadcast to Dynatrace
 T+5.000s  │ Gemini generates forensic report
 T+5.100s  │ Report broadcast to Dynatrace
-T+5.200s  │ Outcome submitted to Vertex AI trainer
+T+5.200s  │ Outcome submitted to Gemini Enterprise Agent Platform trainer
 T+5.300s  │ Incident timeline entry broadcast to Dynatrace
 T+5.400s  │ Workflow complete. Attacker contained.
            │

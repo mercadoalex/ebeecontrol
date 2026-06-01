@@ -125,11 +125,11 @@ Open the link above. Wait 1-2 minutes for Dynatrace to process the ingested logs
 
 **Tile: Component Health (Table)**
 
-> "The system monitors its own health — Tetragon (eBPF detection), Koney operator (honeytoken deployment), Dynatrace (context), and Vertex AI (learning). All components are healthy. If any component fails, the system continues operating with the remaining healthy components and sends alerts."
+> "The system monitors its own health — Tetragon (eBPF detection), Koney operator (honeytoken deployment), Dynatrace (context), and Gemini Enterprise Agent Platform (learning). All components are healthy. If any component fails, the system continues operating with the remaining healthy components and sends alerts."
 
 **Tile: Model Performance (Table)**
 
-> "The Vertex AI placement model improves over time. After every incident, the outcome is fed back to the model. It retrains every 24 hours and only publishes a new model if accuracy improves. This means the system gets smarter about where to place honeytokens without any manual policy updates."
+> "The Gemini Enterprise Agent Platform placement model improves over time. After every incident, the outcome is fed back to the model. It retrains every 24 hours and only publishes a new model if accuracy improves. This means the system gets smarter about where to place honeytokens without any manual policy updates."
 
 ---
 
@@ -179,7 +179,7 @@ If you want to show it happening in real-time during the presentation:
 - **TypeScript** with strict mode
 - **Tetragon eBPF** for kernel-level detection (< 1 second)
 - **Gemini 2.0 Flash** for forensic report generation
-- **Vertex AI** for adaptive placement model
+- **Gemini Enterprise Agent Platform** for adaptive placement model
 - **Dynatrace** for context, anomaly detection, and dashboard
 - **Kubernetes NetworkPolicies** for pod isolation
 - **Helm + Terraform + GitHub Actions** for deployment

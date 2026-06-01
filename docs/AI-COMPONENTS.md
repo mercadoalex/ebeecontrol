@@ -1,4 +1,4 @@
-# eBeeControl — AI Components: Gemini, Vertex AI, and Davis AI
+# eBeeControl — AI Components: Gemini, Gemini Enterprise Agent Platform, and Davis AI
 
 ## Why Three AI Systems?
 
@@ -8,7 +8,7 @@ eBeeControl uses three distinct AI systems because each solves a fundamentally d
 ┌─────────────────────────────────────────────────────────────────┐
 │                    The AI Pipeline                                │
 │                                                                 │
-│   Davis AI          Gemini              Vertex AI               │
+│   Davis AI          Gemini              Gemini Enterprise Agent Platform               │
 │   (The Sensor)      (The Writer)        (The Strategist)        │
 │                                                                 │
 │   "How suspicious   "What happened      "Where should we        │
@@ -136,7 +136,7 @@ Without Gemini, the forensic report would be a raw JSON dump. With Gemini, secur
 
 ---
 
-## Vertex AI (Google Cloud)
+## Gemini Enterprise Agent Platform (Google Cloud)
 
 ### Role: The Strategist
 
@@ -144,7 +144,7 @@ Without Gemini, the forensic report would be a raw JSON dump. With Gemini, secur
 
 ### What it does
 
-Vertex AI is a machine learning platform. We use it to train a **placement optimization model** that learns from past incidents. Over time, it gets better at predicting which pods are most likely to be attacked and what type of honeytoken will catch attackers.
+Gemini Enterprise Agent Platform is a machine learning platform. We use it to train a **placement optimization model** that learns from past incidents. Over time, it gets better at predicting which pods are most likely to be attacked and what type of honeytoken will catch attackers.
 
 We **do** train this model. We feed it outcome data from every incident.
 
@@ -188,7 +188,7 @@ IF new_accuracy <  current_accuracy → REJECT  (keep current model)
 
 ### Why we need it
 
-Without Vertex AI, we'd place honeytokens randomly or based on static rules. With Vertex AI, the system **learns from real attacks** and optimizes placement over time:
+Without Gemini Enterprise Agent Platform, we'd place honeytokens randomly or based on static rules. With Gemini Enterprise Agent Platform, the system **learns from real attacks** and optimizes placement over time:
 - First week: honeytokens placed based on Dynatrace risk scores
 - After 50 incidents: model learns which placements actually catch attackers
 - After 200 incidents: model predicts optimal placement with high accuracy
@@ -263,7 +263,7 @@ Without Vertex AI, we'd place honeytokens randomly or based on static rules. Wit
 
 ## Summary Table
 
-| | Davis AI | Gemini | Vertex AI |
+| | Davis AI | Gemini | Gemini Enterprise Agent Platform |
 |---|---|---|---|
 | **Type** | Anomaly detection | Language model | ML training platform |
 | **Analogy** | Thermometer | Journalist | Coach |
@@ -281,7 +281,7 @@ Without Vertex AI, we'd place honeytokens randomly or based on static rules. Wit
 
 > **Davis tells us what's happening NOW.**
 > **Gemini explains what HAPPENED.**
-> **Vertex AI decides what to do NEXT TIME.**
+> **Gemini Enterprise Agent Platform decides what to do NEXT TIME.**
 
 Three different time horizons. Three different problems. Zero overlap.
 

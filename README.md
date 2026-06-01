@@ -26,7 +26,7 @@ The system operates in a continuous loop: **discover** high-risk services → **
 
 - **Respond autonomously** — Isolate compromised pods, block attacker IPs, and deploy additional traps within seconds of detection — no human approval required.
 
-- **Learn and adapt** — Feed incident outcomes to Vertex AI so the placement model improves over time, reducing false positives and optimizing honeytoken positioning without manual policy updates.
+- **Learn and adapt** — Feed incident outcomes to Gemini Enterprise Agent Platform so the placement model improves over time, reducing false positives and optimizing honeytoken positioning without manual policy updates.
 
 - **Provide full visibility** — Push all operational data (events, responses, health, reports) to Dynatrace for a native dashboard experience using existing observability infrastructure.
 
@@ -46,7 +46,7 @@ The system operates in a continuous loop: **discover** high-risk services → **
 | **Tetragon (eBPF)** | Kernel-level file access monitoring — detects honeytoken access within 1 second |
 | **[Koney](https://github.com/dynatrace-oss/koney)** | Dynatrace open-source Kubernetes operator — automates honeytoken deployment, rotation, and teardown via DeceptionPolicy CRDs |
 | **Dynatrace MCP Server** | Provides service topology, Davis AI anomaly scores, and contextual intelligence |
-| **Vertex AI** | Trains on attack patterns to improve future honeytoken placement |
+| **Gemini Enterprise Agent Platform** | Trains on attack patterns to improve future honeytoken placement |
 | **Dynatrace Dashboard** | Native operational visibility via metrics and log ingestion APIs |
 
 ## Key Features
@@ -83,7 +83,7 @@ npm start
 - **Cilium Tetragon** — eBPF-based kernel monitoring
 - **Koney** — Kubernetes honeytoken deployment
 - **Dynatrace** — Observability, context, and operational dashboard
-- **Vertex AI** — Adaptive learning and model retraining
+- **Gemini Enterprise Agent Platform** — Adaptive learning and model retraining
 
 ## Project Structure
 
