@@ -7,7 +7,7 @@ eBeeControl is an autonomous deception engine that protects Kubernetes clusters 
 The system combines five technologies:
 - **Gemini AI** for intelligent decision-making
 - **eBPF (Tetragon)** for kernel-level detection
-- **Koney** for decoy deployment
+- **[Koney](https://github.com/dynatrace-oss/koney)** (Dynatrace OSS) — Kubernetes operator for automated honeytoken deployment, rotation, and monitoring via DeceptionPolicy CRDs
 - **Dynatrace** for observability and context
 - **Vertex AI** for adaptive learning
 

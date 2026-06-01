@@ -125,7 +125,7 @@ Open the link above. Wait 1-2 minutes for Dynatrace to process the ingested logs
 
 **Tile: Component Health (Table)**
 
-> "The system monitors its own health — Tetragon (eBPF detection), Koney (deployment), Dynatrace (context), and Vertex AI (learning). All components are healthy. If any component fails, the system continues operating with the remaining healthy components and sends alerts."
+> "The system monitors its own health — Tetragon (eBPF detection), Koney operator (honeytoken deployment), Dynatrace (context), and Vertex AI (learning). All components are healthy. If any component fails, the system continues operating with the remaining healthy components and sends alerts."
 
 **Tile: Model Performance (Table)**
 

@@ -58,7 +58,7 @@ Find high-risk services in the Kubernetes cluster and deploy honeytokens (decoy 
 │                                                                     │
 │  For each service → for each pod in podIdentifiers:                 │
 │                                                                     │
-│  Agent ──→ Koney Deployer ──→ Kubernetes API                        │
+│  Agent ──→ Koney (Dynatrace OSS Operator) ──→ Kubernetes API           │
 │                                                                     │
 │  Deploys 3 honeytokens per pod:                                     │
 │    1. decoy_secret  → /var/run/secrets/.../decoy-token-{podId}      │
@@ -106,7 +106,7 @@ Find high-risk services in the Kubernetes cluster and deploy honeytokens (decoy 
 |-----------|-----------|------|
 | Orchestrator | Node.js + setInterval | Schedules discovery cycles |
 | Dynatrace MCP Server | REST API | Provides high-risk service data |
-| Koney Deployer | @kubernetes/client-node | Creates K8s Secrets |
+| Koney | Dynatrace OSS Kubernetes Operator | Deploys/rotates honeytokens via DeceptionPolicy CRDs |
 | Tetragon | eBPF TracingPolicy | Monitors deployed file paths |
 | Registry | In-memory Map | Tracks all deployed honeytokens |
 | Dynatrace Ingestion | REST API (Log Ingest) | Pushes events to dashboard |
@@ -238,7 +238,7 @@ Detect when an attacker accesses a honeytoken, classify the threat, and respond 
 │     On failure: Send alert, retry                                   │
 │                                                                     │
 │  3. ADDITIONAL HONEYTOKENS (Priority 3):                            │
-│     Agent ──→ Koney Deployer: Deploy 2+ more traps in namespace     │
+│     Agent ──→ Koney Operator: Deploy 2+ more traps in namespace      │
 │     Catches lateral movement attempts                               │
 │                                                                     │
 │  Technology: @kubernetes/client-node, NetworkPolicy API              │
@@ -544,7 +544,7 @@ Continuously monitor all system components and automatically recover from failur
 │                                                                     │
 │  ┌─────────────────────┬────────────────────────────────────────┐   │
 │  │ Tetragon_Monitor    │ Call getRegisteredPaths()               │   │
-│  │ Koney_Deployer      │ Call getDeploymentStatus("health")      │   │
+│  │ Koney_Operator       │ Check DeceptionPolicy status              │   │
 │  │ Dynatrace_MCP_Server│ Call getPodContext("health", "default") │   │
 │  │ Vertex_AI_Trainer   │ Call getTrainingStatus()                │   │
 │  └─────────────────────┴────────────────────────────────────────┘   │
@@ -585,7 +585,7 @@ Continuously monitor all system components and automatically recover from failur
 | Component Down | System Behavior |
 |---------------|----------------|
 | Tetragon | No new detections, existing responses continue |
-| Koney Deployer | No new deployments, existing honeytokens still monitored |
+| Koney Operator | No new deployments, existing honeytokens still monitored |
 | Dynatrace MCP | Context queries timeout → default to HIGH classification |
 | Vertex AI | Learning paused, current model stays in use |
 | Dynatrace Ingestion | Events buffered locally, delivered when restored |

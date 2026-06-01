@@ -44,7 +44,7 @@ The system operates in a continuous loop: **discover** high-risk services → **
 |-----------|------|
 | **Gemini Agent** | Orchestrates decisions — where to place traps, how to classify threats, what actions to take |
 | **Tetragon (eBPF)** | Kernel-level file access monitoring — detects honeytoken access within 1 second |
-| **Koney** | Deploys decoy secrets, files, and credentials into targeted pods |
+| **[Koney](https://github.com/dynatrace-oss/koney)** | Dynatrace open-source Kubernetes operator — automates honeytoken deployment, rotation, and teardown via DeceptionPolicy CRDs |
 | **Dynatrace MCP Server** | Provides service topology, Davis AI anomaly scores, and contextual intelligence |
 | **Vertex AI** | Trains on attack patterns to improve future honeytoken placement |
 | **Dynatrace Dashboard** | Native operational visibility via metrics and log ingestion APIs |
