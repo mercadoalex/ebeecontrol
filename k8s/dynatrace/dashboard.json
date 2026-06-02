@@ -5,173 +5,254 @@
     "0": {
       "type": "markdown",
       "title": "",
-      "content": "# 🐝 eBeeControl — Autonomous Deception Engine\n### Real-time Kubernetes honeytoken deployment, threat detection, and autonomous response\n---"
+      "content": "# 🐝 eBeeControl — Autonomous Deception Engine\n### Gemini-powered honeytoken deployment, threat detection, and autonomous response for Kubernetes"
     },
     "1": {
       "type": "markdown",
       "title": "",
-      "content": "## 🛡️ Defense Posture\n_How many traps are deployed and where_"
+      "content": "## 🛡️ Defense Posture"
     },
     "2": {
       "type": "data",
-      "title": "Honeytokens by Type",
-      "query": "fetch logs\n| filter matchesPhrase(content, \"honeytokenId\") and matchesPhrase(content, \"deploymentTimestamp\") and not matchesPhrase(content, \"incidentId\")\n| parse content, \"JSON:payload\"\n| summarize count=count(), by:{payload[type]}",
-      "davis": { "enabled": false },
-      "visualization": "pie",
+      "title": "🍯 Total Honeytokens Deployed",
+      "query": "fetch logs\n| filter contains(content, \"honeytokenId\") and contains(content, \"deploymentTimestamp\") and not contains(content, \"incidentId\")\n| summarize count()",
+      "visualization": "singleValue",
       "visualizationSettings": {
-        "chartSettings": {
-          "legend": { "position": "right" }
+        "singleValue": {
+          "showLabel": true,
+          "label": "Active Traps",
+          "prefixIcon": "shield",
+          "colorThresholdTarget": "value",
+          "colorThresholds": [
+            { "color": "#4fd5e0", "comparator": ">=", "value": 0 }
+          ]
         }
-      }
+      },
+      "davis": { "enabled": false }
     },
     "3": {
       "type": "data",
-      "title": "Honeytokens Deployed Over Time",
-      "query": "fetch logs\n| filter matchesPhrase(content, \"honeytokenId\") and matchesPhrase(content, \"deploymentTimestamp\") and not matchesPhrase(content, \"incidentId\")\n| makeTimeseries count=count(), interval:5m",
-      "davis": { "enabled": false },
-      "visualization": "lineChart",
+      "title": "Honeytokens by Type",
+      "query": "fetch logs\n| filter contains(content, \"honeytokenId\") and contains(content, \"deploymentTimestamp\") and not contains(content, \"incidentId\")\n| parse content, \"JSON:p\"\n| summarize count=count(), by:{p[type]}",
+      "visualization": "pie",
       "visualizationSettings": {
         "chartSettings": {
-          "legend": { "position": "hidden" }
+          "colorPalette": "categorical",
+          "legend": { "position": "right" }
         }
-      }
+      },
+      "davis": { "enabled": false }
     },
     "4": {
       "type": "data",
-      "title": "Active Honeytokens Registry",
-      "query": "fetch logs\n| filter matchesPhrase(content, \"honeytokenId\") and matchesPhrase(content, \"deploymentTimestamp\") and not matchesPhrase(content, \"incidentId\")\n| parse content, \"JSON:payload\"\n| fields timestamp, payload[podId], payload[namespace], payload[type], payload[status]\n| sort timestamp desc\n| limit 20",
-      "davis": { "enabled": false },
-      "visualization": "table",
-      "visualizationSettings": {}
+      "title": "Honeytokens by Namespace",
+      "query": "fetch logs\n| filter contains(content, \"honeytokenId\") and contains(content, \"deploymentTimestamp\") and not contains(content, \"incidentId\")\n| parse content, \"JSON:p\"\n| summarize count=count(), by:{p[namespace]}",
+      "visualization": "bar",
+      "visualizationSettings": {
+        "chartSettings": {
+          "colorPalette": "blue"
+        }
+      },
+      "davis": { "enabled": false }
     },
     "5": {
       "type": "markdown",
       "title": "",
-      "content": "---\n## ⚔️ Attack Detection\n_Real-time eBPF kernel-level monitoring via Tetragon_"
+      "content": "## ⚔️ Under Attack"
     },
     "6": {
       "type": "data",
-      "title": "🔴 Threat Level Distribution",
-      "query": "fetch logs\n| filter matchesPhrase(content, \"threatClassification\") and matchesPhrase(content, \"accessType\")\n| parse content, \"JSON:payload\"\n| summarize count=count(), by:{payload[threatClassification]}",
-      "davis": { "enabled": false },
-      "visualization": "bar",
+      "title": "🚨 Total Attacks Detected",
+      "query": "fetch logs\n| filter contains(content, \"accessType\") and contains(content, \"threatClassification\") and not contains(content, \"incidentId\") and not contains(content, \"actionId\")\n| summarize count()",
+      "visualization": "singleValue",
       "visualizationSettings": {
-        "chartSettings": {
-          "colorPalette": "categorical"
+        "singleValue": {
+          "showLabel": true,
+          "label": "Attacks Detected",
+          "prefixIcon": "warning",
+          "colorThresholdTarget": "value",
+          "colorThresholds": [
+            { "color": "#f5d30f", "comparator": ">=", "value": 0 },
+            { "color": "#ff6b35", "comparator": ">=", "value": 3 },
+            { "color": "#dc172a", "comparator": ">=", "value": 5 }
+          ]
         }
-      }
+      },
+      "davis": { "enabled": false }
     },
     "7": {
       "type": "data",
-      "title": "Attacks Over Time",
-      "query": "fetch logs\n| filter matchesPhrase(content, \"threatClassification\") and matchesPhrase(content, \"accessType\")\n| makeTimeseries count=count(), interval:5m",
-      "davis": { "enabled": false },
-      "visualization": "areaChart",
+      "title": "Threat Level Breakdown",
+      "query": "fetch logs\n| filter contains(content, \"accessType\") and contains(content, \"threatClassification\") and not contains(content, \"incidentId\") and not contains(content, \"actionId\")\n| parse content, \"JSON:p\"\n| summarize count=count(), by:{p[threatClassification]}",
+      "visualization": "pie",
       "visualizationSettings": {
         "chartSettings": {
-          "legend": { "position": "hidden" }
+          "colorPalette": "divergent",
+          "legend": { "position": "right" },
+          "seriesOverrides": [
+            { "name": "critical", "color": "#dc172a" },
+            { "name": "high", "color": "#ff6b35" },
+            { "name": "medium", "color": "#f5d30f" },
+            { "name": "low", "color": "#54c27e" }
+          ]
         }
-      }
+      },
+      "davis": { "enabled": false }
     },
     "8": {
       "type": "data",
-      "title": "Latest Access Events",
-      "query": "fetch logs\n| filter matchesPhrase(content, \"threatClassification\") and matchesPhrase(content, \"accessType\") and not matchesPhrase(content, \"incidentId\")\n| parse content, \"JSON:payload\"\n| fields timestamp, payload[podId], payload[namespace], payload[processBinaryPath], payload[accessType], payload[threatClassification]\n| sort timestamp desc\n| limit 10",
-      "davis": { "enabled": false },
-      "visualization": "table",
-      "visualizationSettings": {}
+      "title": "Attack Timeline",
+      "query": "fetch logs\n| filter contains(content, \"accessType\") and contains(content, \"threatClassification\") and not contains(content, \"incidentId\") and not contains(content, \"actionId\")\n| makeTimeseries count=count(), interval:1m",
+      "visualization": "areaChart",
+      "visualizationSettings": {
+        "chartSettings": {
+          "colorPalette": "red"
+        }
+      },
+      "davis": { "enabled": false }
     },
     "9": {
       "type": "markdown",
       "title": "",
-      "content": "---\n## ⚡ Autonomous Response\n_Pod isolation, IP blocking, and additional trap deployment — all within milliseconds_"
+      "content": "## ⚡ Autonomous Response"
     },
     "10": {
       "type": "data",
-      "title": "Response Actions by Type",
-      "query": "fetch logs\n| filter matchesPhrase(content, \"actionId\") and matchesPhrase(content, \"actionType\") and matchesPhrase(content, \"outcome\")\n| parse content, \"JSON:payload\"\n| summarize count=count(), by:{payload[actionType]}",
-      "davis": { "enabled": false },
-      "visualization": "bar",
-      "visualizationSettings": {}
+      "title": "✅ Response Actions Taken",
+      "query": "fetch logs\n| filter contains(content, \"actionId\") and contains(content, \"actionType\") and contains(content, \"outcome\")\n| summarize count()",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "showLabel": true,
+          "label": "Actions Executed",
+          "prefixIcon": "bolt",
+          "colorThresholdTarget": "value",
+          "colorThresholds": [
+            { "color": "#54c27e", "comparator": ">=", "value": 0 }
+          ]
+        }
+      },
+      "davis": { "enabled": false }
     },
     "11": {
       "type": "data",
-      "title": "Success vs Failure",
-      "query": "fetch logs\n| filter matchesPhrase(content, \"actionId\") and matchesPhrase(content, \"actionType\") and matchesPhrase(content, \"outcome\")\n| parse content, \"JSON:payload\"\n| summarize count=count(), by:{payload[outcome]}",
-      "davis": { "enabled": false },
-      "visualization": "pie",
-      "visualizationSettings": {}
+      "title": "Actions by Type",
+      "query": "fetch logs\n| filter contains(content, \"actionId\") and contains(content, \"actionType\") and contains(content, \"outcome\")\n| parse content, \"JSON:p\"\n| summarize count=count(), by:{p[actionType]}",
+      "visualization": "bar",
+      "visualizationSettings": {
+        "chartSettings": {
+          "colorPalette": "green"
+        }
+      },
+      "davis": { "enabled": false }
     },
     "12": {
       "type": "data",
-      "title": "Response Action Log",
-      "query": "fetch logs\n| filter matchesPhrase(content, \"actionId\") and matchesPhrase(content, \"actionType\") and matchesPhrase(content, \"outcome\")\n| parse content, \"JSON:payload\"\n| fields timestamp, payload[actionType], payload[target], payload[triggeringClassification], payload[outcome]\n| sort timestamp desc\n| limit 15",
-      "davis": { "enabled": false },
-      "visualization": "table",
-      "visualizationSettings": {}
+      "title": "Containment Outcomes",
+      "query": "fetch logs\n| filter contains(content, \"incidentId\") and contains(content, \"finalOutcome\")\n| parse content, \"JSON:p\"\n| summarize count=count(), by:{p[finalOutcome]}",
+      "visualization": "pie",
+      "visualizationSettings": {
+        "chartSettings": {
+          "seriesOverrides": [
+            { "name": "contained", "color": "#54c27e" },
+            { "name": "escalated", "color": "#dc172a" },
+            { "name": "false_positive", "color": "#f5d30f" }
+          ],
+          "legend": { "position": "right" }
+        }
+      },
+      "davis": { "enabled": false }
     },
     "13": {
       "type": "markdown",
       "title": "",
-      "content": "---\n## 📋 Incidents & Forensics\n_Complete incident timeline with Gemini-generated forensic reports_"
+      "content": "## 🧬 Getting Smarter"
     },
     "14": {
       "type": "data",
-      "title": "Incident Outcomes",
-      "query": "fetch logs\n| filter matchesPhrase(content, \"incidentId\") and matchesPhrase(content, \"finalOutcome\")\n| parse content, \"JSON:payload\"\n| summarize count=count(), by:{payload[finalOutcome]}",
-      "davis": { "enabled": false },
-      "visualization": "pie",
-      "visualizationSettings": {}
+      "title": "🎯 Model Accuracy",
+      "query": "fetch logs\n| filter contains(content, \"modelVersionId\") and contains(content, \"validationAccuracy\")\n| parse content, \"JSON:p\"\n| sort timestamp desc\n| limit 1\n| fields p[validationAccuracy]",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "showLabel": true,
+          "label": "Placement Accuracy %",
+          "prefixIcon": "brain",
+          "colorThresholdTarget": "value",
+          "colorThresholds": [
+            { "color": "#dc172a", "comparator": ">=", "value": 0 },
+            { "color": "#f5d30f", "comparator": ">=", "value": 60 },
+            { "color": "#54c27e", "comparator": ">=", "value": 80 }
+          ]
+        }
+      },
+      "davis": { "enabled": false }
     },
     "15": {
       "type": "data",
-      "title": "Incident Timeline",
-      "query": "fetch logs\n| filter matchesPhrase(content, \"incidentId\") and matchesPhrase(content, \"finalOutcome\")\n| parse content, \"JSON:payload\"\n| fields timestamp, payload[threatClassification], payload[affectedPodId], payload[namespace], payload[finalOutcome]\n| sort timestamp desc\n| limit 20",
-      "davis": { "enabled": false },
-      "visualization": "table",
-      "visualizationSettings": {}
+      "title": "📊 Training Dataset",
+      "query": "fetch logs\n| filter contains(content, \"modelVersionId\") and contains(content, \"trainingDatasetSize\")\n| parse content, \"JSON:p\"\n| sort timestamp desc\n| limit 1\n| fields p[trainingDatasetSize]",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "showLabel": true,
+          "label": "Incidents Learned From",
+          "prefixIcon": "database",
+          "colorThresholdTarget": "value",
+          "colorThresholds": [
+            { "color": "#7c38bc", "comparator": ">=", "value": 0 }
+          ]
+        }
+      },
+      "davis": { "enabled": false }
     },
     "16": {
-      "type": "markdown",
-      "title": "",
-      "content": "---\n## 🧬 Adaptive Learning & System Health\n_Vertex AI model accuracy and component status_"
+      "type": "data",
+      "title": "🏥 System Health",
+      "query": "fetch logs\n| filter contains(content, \"componentName\") and contains(content, \"lastSuccessfulCheckTimestamp\")\n| parse content, \"JSON:p\"\n| sort timestamp desc\n| limit 4\n| fields p[componentName], p[status]",
+      "visualization": "table",
+      "visualizationSettings": {},
+      "davis": { "enabled": false }
     },
     "17": {
-      "type": "data",
-      "title": "🏥 Component Health",
-      "query": "fetch logs\n| filter matchesPhrase(content, \"componentName\") and matchesPhrase(content, \"lastSuccessfulCheckTimestamp\")\n| parse content, \"JSON:payload\"\n| fields timestamp, payload[componentName], payload[status]\n| sort timestamp desc\n| limit 10",
-      "davis": { "enabled": false },
-      "visualization": "table",
-      "visualizationSettings": {}
+      "type": "markdown",
+      "title": "",
+      "content": "## 📋 Incident Timeline"
     },
     "18": {
       "type": "data",
-      "title": "🧬 Model Performance",
-      "query": "fetch logs\n| filter matchesPhrase(content, \"modelVersionId\") and matchesPhrase(content, \"validationAccuracy\")\n| parse content, \"JSON:payload\"\n| fields timestamp, payload[modelVersionId], payload[validationAccuracy], payload[trainingDatasetSize], payload[trainingStatus]\n| sort timestamp desc\n| limit 5",
-      "davis": { "enabled": false },
+      "title": "Recent Incidents",
+      "query": "fetch logs\n| filter contains(content, \"incidentId\") and contains(content, \"finalOutcome\")\n| parse content, \"JSON:p\"\n| fields timestamp, p[threatClassification], p[affectedPodId], p[namespace], p[finalOutcome]\n| sort timestamp desc\n| limit 20",
       "visualization": "table",
-      "visualizationSettings": {}
+      "visualizationSettings": {},
+      "davis": { "enabled": false }
+    },
+    "19": {
+      "type": "markdown",
+      "title": "",
+      "content": "---\n\n<p align=\"center\">Built with ❤️ by Alex Mercado • mercadoalex@gmail.com</p>"
     }
   },
   "layouts": {
-    "0":  { "x": 0,  "y": 0,  "w": 24, "h": 3 },
-    "1":  { "x": 0,  "y": 3,  "w": 24, "h": 2 },
-    "2":  { "x": 0,  "y": 5,  "w": 8,  "h": 6 },
-    "3":  { "x": 8,  "y": 5,  "w": 8,  "h": 6 },
-    "4":  { "x": 16, "y": 5,  "w": 8,  "h": 6 },
-    "5":  { "x": 0,  "y": 11, "w": 24, "h": 2 },
-    "6":  { "x": 0,  "y": 13, "w": 8,  "h": 6 },
-    "7":  { "x": 8,  "y": 13, "w": 8,  "h": 6 },
-    "8":  { "x": 16, "y": 13, "w": 8,  "h": 6 },
-    "9":  { "x": 0,  "y": 19, "w": 24, "h": 2 },
-    "10": { "x": 0,  "y": 21, "w": 8,  "h": 6 },
-    "11": { "x": 8,  "y": 21, "w": 8,  "h": 6 },
-    "12": { "x": 16, "y": 21, "w": 8,  "h": 6 },
-    "13": { "x": 0,  "y": 27, "w": 24, "h": 2 },
-    "14": { "x": 0,  "y": 29, "w": 8,  "h": 6 },
-    "15": { "x": 8,  "y": 29, "w": 16, "h": 6 },
-    "16": { "x": 0,  "y": 35, "w": 24, "h": 2 },
-    "17": { "x": 0,  "y": 37, "w": 12, "h": 5 },
-    "18": { "x": 12, "y": 37, "w": 12, "h": 5 }
+    "0":  { "x": 0,  "y": 0,  "w": 24, "h": 2 },
+    "1":  { "x": 0,  "y": 2,  "w": 24, "h": 1 },
+    "2":  { "x": 0,  "y": 3,  "w": 6,  "h": 4 },
+    "3":  { "x": 6,  "y": 3,  "w": 9,  "h": 4 },
+    "4":  { "x": 15, "y": 3,  "w": 9,  "h": 4 },
+    "5":  { "x": 0,  "y": 7,  "w": 24, "h": 1 },
+    "6":  { "x": 0,  "y": 8,  "w": 6,  "h": 4 },
+    "7":  { "x": 6,  "y": 8,  "w": 9,  "h": 4 },
+    "8":  { "x": 15, "y": 8,  "w": 9,  "h": 4 },
+    "9":  { "x": 0,  "y": 12, "w": 24, "h": 1 },
+    "10": { "x": 0,  "y": 13, "w": 6,  "h": 4 },
+    "11": { "x": 6,  "y": 13, "w": 9,  "h": 4 },
+    "12": { "x": 15, "y": 13, "w": 9,  "h": 4 },
+    "13": { "x": 0,  "y": 17, "w": 24, "h": 1 },
+    "14": { "x": 0,  "y": 18, "w": 6,  "h": 4 },
+    "15": { "x": 6,  "y": 18, "w": 6,  "h": 4 },
+    "16": { "x": 12, "y": 18, "w": 12, "h": 4 },
+    "17": { "x": 0,  "y": 22, "w": 24, "h": 1 },
+    "18": { "x": 0,  "y": 23, "w": 24, "h": 7 },
+    "19": { "x": 0,  "y": 30, "w": 24, "h": 2 }
   }
 }

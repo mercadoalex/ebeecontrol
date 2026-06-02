@@ -45,7 +45,7 @@ Open the link above. Wait 1-2 minutes for Dynatrace to process the ingested logs
 
 ### Section 1: 🛡️ Defense Posture
 
-**Tile: Honeytokens by Type (Table)**
+**Tile: Honeytokens by Type (Pie Chart)**
 
 > "Here you can see our deployed honeytokens broken down by type. We deploy three kinds of traps:
 > - **Decoy secrets** — fake Kubernetes service account tokens
