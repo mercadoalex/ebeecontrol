@@ -251,6 +251,13 @@ async function runLiveDemo() {
 
   await broadcaster.broadcastForensicReport(report);
   console.log(`   📄 Report: ${report.reportId}`);
+  console.log('');
+  console.log('   ── Gemini AI Forensic Analysis ──');
+  console.log('');
+  for (const action of report.recommendedFollowUpActions) {
+    console.log(`   → ${action}`);
+  }
+  console.log('');
 
   // ── Step 6: Submit learning outcome ──
   console.log('');

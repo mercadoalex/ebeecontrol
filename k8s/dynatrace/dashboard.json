@@ -228,6 +228,14 @@
       "davis": { "enabled": false }
     },
     "19": {
+      "type": "data",
+      "title": "🤖 Gemini AI Forensic Analysis",
+      "query": "fetch logs\n| filter contains(content, \"reportContent\") and contains(content, \"reportId\")\n| parse content, \"JSON:p\"\n| fields timestamp, p[reportId], p[threatClassification], p[affectedPodId], p[reportContent]\n| sort timestamp desc\n| limit 5",
+      "visualization": "table",
+      "visualizationSettings": {},
+      "davis": { "enabled": false }
+    },
+    "20": {
       "type": "markdown",
       "title": "",
       "content": "---\n\n<p align=\"center\">Built with ❤️ by Alex Mercado • mercadoalex@gmail.com</p>"
@@ -253,6 +261,7 @@
     "16": { "x": 12, "y": 18, "w": 12, "h": 4 },
     "17": { "x": 0,  "y": 22, "w": 24, "h": 1 },
     "18": { "x": 0,  "y": 23, "w": 24, "h": 7 },
-    "19": { "x": 0,  "y": 30, "w": 24, "h": 2 }
+    "19": { "x": 0,  "y": 30, "w": 24, "h": 7 },
+    "20": { "x": 0,  "y": 37, "w": 24, "h": 2 }
   }
 }
