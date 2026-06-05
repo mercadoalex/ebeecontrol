@@ -26,7 +26,7 @@ export interface GeminiConfig {
  */
 export function createGeminiClient(config: GeminiConfig = {}): GeminiGenerateFn {
   const apiKey = config.apiKey || process.env.GEMINI_API_KEY || '';
-  const modelName = config.model || 'gemini-2.0-flash';
+  const modelName = config.model || 'models/gemini-2.5-flash';
 
   if (!apiKey) {
     throw new Error('GEMINI_API_KEY not set. Get one from https://aistudio.google.com/apikey');
