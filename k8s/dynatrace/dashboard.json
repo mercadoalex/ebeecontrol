@@ -230,12 +230,58 @@
     "19": {
       "type": "data",
       "title": "🤖 Gemini AI Forensic Reports",
-      "query": "fetch logs\n| filter contains(content, \"gistUrl\")\n| parse content, \"JSON:p\"\n| sort timestamp desc\n| limit 3\n| fields timestamp, p[reportId], p[gistUrl]",
+      "query": "fetch logs\n| filter contains(content, \"reportId\") and contains(content, \"reportContent\")\n| parse content, \"JSON:p\"\n| sort timestamp desc\n| limit 5\n| fields timestamp, p[reportId], p[threatClassification], p[affectedPodId], p[namespace], gistUrl = if(isNull(p[gistUrl]), \"pending...\", else: p[gistUrl])",
       "visualization": "table",
       "visualizationSettings": {},
       "davis": { "enabled": false }
     },
     "20": {
+      "type": "markdown",
+      "title": "",
+      "content": "## 🧠 Autonomous ML Decisions"
+    },
+    "21": {
+      "type": "data",
+      "title": "⚙️ ML-Driven Response Actions Log",
+      "query": "fetch logs\n| filter contains(content, \"actionId\") and contains(content, \"actionType\") and contains(content, \"outcome\")\n| parse content, \"JSON:p\"\n| sort timestamp desc\n| limit 20\n| fields timestamp, p[actionId], p[actionType], p[target], p[triggeringClassification], p[outcome]",
+      "visualization": "table",
+      "visualizationSettings": {},
+      "davis": { "enabled": false }
+    },
+    "22": {
+      "type": "data",
+      "title": "🎯 Decision Accuracy: Actions by Threat Level",
+      "query": "fetch logs\n| filter contains(content, \"actionId\") and contains(content, \"actionType\") and contains(content, \"outcome\")\n| parse content, \"JSON:p\"\n| summarize count=count(), by:{p[triggeringClassification], p[outcome]}",
+      "visualization": "bar",
+      "visualizationSettings": {
+        "chartSettings": {
+          "colorPalette": "categorical",
+          "legend": { "position": "right" }
+        }
+      },
+      "davis": { "enabled": false }
+    },
+    "23": {
+      "type": "data",
+      "title": "📈 Autonomous Response Success Rate",
+      "query": "fetch logs\n| filter contains(content, \"actionId\") and contains(content, \"actionType\") and contains(content, \"outcome\")\n| parse content, \"JSON:p\"\n| summarize total=count(), successes=countIf(p[outcome] == \"success\")\n| fields successRate = 100.0 * toDouble(successes) / toDouble(total)",
+      "visualization": "singleValue",
+      "visualizationSettings": {
+        "singleValue": {
+          "showLabel": true,
+          "label": "Success Rate %",
+          "prefixIcon": "checkmark",
+          "colorThresholdTarget": "value",
+          "colorThresholds": [
+            { "color": "#dc172a", "comparator": ">=", "value": 0 },
+            { "color": "#f5d30f", "comparator": ">=", "value": 70 },
+            { "color": "#54c27e", "comparator": ">=", "value": 90 }
+          ]
+        }
+      },
+      "davis": { "enabled": false }
+    },
+    "24": {
       "type": "markdown",
       "title": "",
       "content": "---\n\n<p align=\"center\">Built with ❤️ by Alex Mercado • mercadoalex@gmail.com</p>"
@@ -261,7 +307,11 @@
     "16": { "x": 12, "y": 18, "w": 12, "h": 4 },
     "17": { "x": 0,  "y": 22, "w": 24, "h": 1 },
     "18": { "x": 0,  "y": 23, "w": 24, "h": 7 },
-    "19": { "x": 0,  "y": 30, "w": 24, "h": 20 },
-    "20": { "x": 0,  "y": 50, "w": 24, "h": 2 }
+    "19": { "x": 0,  "y": 30, "w": 24, "h": 7 },
+    "20": { "x": 0,  "y": 37, "w": 24, "h": 1 },
+    "21": { "x": 0,  "y": 38, "w": 24, "h": 7 },
+    "22": { "x": 0,  "y": 45, "w": 14, "h": 5 },
+    "23": { "x": 14, "y": 45, "w": 10, "h": 5 },
+    "24": { "x": 0,  "y": 50, "w": 24, "h": 2 }
   }
 }

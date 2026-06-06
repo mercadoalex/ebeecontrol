@@ -35,7 +35,7 @@ export interface EventBroadcaster {
   broadcastAccessEvent(event: AccessEvent, classification: ThreatClassification): Promise<void>;
   broadcastResponseAction(action: ResponseAction): Promise<void>;
   broadcastHealthStatusChange(status: ComponentHealthMetricPayload): Promise<void>;
-  broadcastForensicReport(report: ForensicReport): Promise<void>;
+  broadcastForensicReport(report: ForensicReport, options?: { gistUrl?: string }): Promise<void>;
   broadcastLearningMetrics(metrics: LearningMetricPayload): Promise<void>;
   broadcastIncidentTimeline(incident: IncidentTimelineLogPayload): Promise<void>;
 }
@@ -161,7 +161,7 @@ export function createEventBroadcaster(
      *
      * Validates: Requirements 9.10
      */
-    async broadcastForensicReport(report: ForensicReport): Promise<void> {
+    async broadcastForensicReport(report: ForensicReport, options?: { gistUrl?: string }): Promise<void> {
       const payload: ForensicReportLogPayload = {
         reportId: report.reportId,
         generationTimestamp: report.generationTimestamp,
@@ -169,6 +169,7 @@ export function createEventBroadcaster(
         affectedPodId: report.accessEventDetails.podId,
         namespace: report.accessEventDetails.namespace,
         reportContent: JSON.stringify(report),
+        ...(options?.gistUrl ? { gistUrl: options.gistUrl } : {}),
       };
       await logClient.pushForensicReportLog(payload);
     },

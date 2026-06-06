@@ -83,9 +83,10 @@ async function runLiveDemo() {
   console.log('');
 
   // ── Step 1: Deploy honeytokens and push to Dynatrace ──
-  console.log('📡 Step 1: Deploying honeytokens...');
+  console.log('📡 Step 1: Deploying honeytokens across namespaces...');
 
   const honeytokens: HoneytokenRegistryEntry[] = [
+    // Production namespace
     {
       honeytokenId: uuidv4(),
       podId: 'pod-payment-7f8d9c',
@@ -112,6 +113,59 @@ async function runLiveDemo() {
       namespace: 'production',
       type: 'decoy_credential',
       filePath: '/home/app/.ssh/id_rsa_prod',
+      deploymentTimestamp: new Date().toISOString(),
+      status: 'active',
+      accessCount: 0,
+    },
+    // Staging namespace
+    {
+      honeytokenId: uuidv4(),
+      podId: 'pod-api-stg-a3b4c5',
+      namespace: 'staging',
+      type: 'decoy_secret',
+      filePath: '/var/run/secrets/kubernetes.io/serviceaccount/stg-token',
+      deploymentTimestamp: new Date().toISOString(),
+      status: 'active',
+      accessCount: 0,
+    },
+    {
+      honeytokenId: uuidv4(),
+      podId: 'pod-worker-stg-d6e7f8',
+      namespace: 'staging',
+      type: 'decoy_file',
+      filePath: '/tmp/.aws/credentials',
+      deploymentTimestamp: new Date().toISOString(),
+      status: 'active',
+      accessCount: 0,
+    },
+    // Development namespace
+    {
+      honeytokenId: uuidv4(),
+      podId: 'pod-devtools-g9h0i1',
+      namespace: 'development',
+      type: 'decoy_credential',
+      filePath: '/root/.kube/config',
+      deploymentTimestamp: new Date().toISOString(),
+      status: 'active',
+      accessCount: 0,
+    },
+    // Data namespace
+    {
+      honeytokenId: uuidv4(),
+      podId: 'pod-postgres-j2k3l4',
+      namespace: 'data',
+      type: 'decoy_secret',
+      filePath: '/var/secrets/db-master-password',
+      deploymentTimestamp: new Date().toISOString(),
+      status: 'active',
+      accessCount: 0,
+    },
+    {
+      honeytokenId: uuidv4(),
+      podId: 'pod-redis-m5n6o7',
+      namespace: 'data',
+      type: 'decoy_file',
+      filePath: '/etc/redis/tls-cert.pem',
       deploymentTimestamp: new Date().toISOString(),
       status: 'active',
       accessCount: 0,
@@ -152,185 +206,250 @@ async function runLiveDemo() {
 
   await sleep(2000);
 
-  // ── Step 2: Simulate attack ──
-  console.log('⚔️  Step 2: Simulating attack...');
-
-  const attackEvent: AccessEvent = {
-    eventId: uuidv4(),
-    processId: 31337,
-    processBinaryPath: '/tmp/.hidden/reverse-shell',
-    userId: 0,
-    podId: 'pod-payment-7f8d9c',
-    namespace: 'production',
-    honeytokenPath: '/var/run/secrets/kubernetes.io/serviceaccount/decoy-token',
-    accessType: 'read',
-    timestamp: new Date().toISOString(),
-  };
-
-  console.log(`   ⚠️  Attack: PID ${attackEvent.processId} reading ${attackEvent.honeytokenPath}`);
-
-  // ── Step 3: Assess threat ──
+  // ── Step 2: Simulate attacks across multiple namespaces ──
+  console.log('⚔️  Step 2: Simulating attacks across namespaces...');
   console.log('');
-  console.log('🧠 Step 3: Assessing threat...');
 
-  const podContext: PodContext = {
-    namespace: 'production',
-    namespaceClassification: 'production',
-    serviceCriticality: 4,
-    davisAnomalyScore: 0.85,
-    anomalyWindowMinutes: 10,
-  };
+  // Prepare Gemini and Gist for forensic reports
+  const { createGeminiClientWithFallback: createGemini } = await import('../src/agent/gemini-report-generator.js');
+  const gemini = createGemini();
+  const gistToken = process.env.GITHUB_GIST_TOKEN;
 
-  const classification = classifyThreat(podContext);
-  const assessment: ThreatAssessment = {
-    assessmentId: uuidv4(),
-    accessEventId: attackEvent.eventId,
-    classification,
-    inputs: {
-      namespaceClassification: podContext.namespaceClassification,
-      serviceCriticality: podContext.serviceCriticality,
-      davisAnomalyScore: podContext.davisAnomalyScore,
-    },
-    assessmentTimestamp: new Date().toISOString(),
-    assessmentLatencyMs: 2,
-  };
-
-  console.log(`   🎯 Classification: ${classification.toUpperCase()}`);
-
-  // Broadcast access event
-  await broadcaster.broadcastAccessEvent(attackEvent, classification);
-
-  await sleep(1000);
-
-  // ── Step 4: Execute response ──
-  console.log('');
-  console.log('⚡ Step 4: Executing response...');
-
-  const plan = generateResponsePlan(assessment, {
-    namespace: attackEvent.namespace,
-    podId: attackEvent.podId,
-  });
-
-  const responseResult = await executeResponse(plan, assessment, {
-    isolatePod: async (podId) => {
-      console.log(`   🔒 Pod ${podId} isolated`);
-    },
-    blockIp: async (podId) => {
-      console.log(`   🚫 IP blocked for ${podId}`);
-    },
-    deployHoneytokens: async (ns, count) => {
-      console.log(`   🍯 ${count} additional honeytokens deployed in ${ns}`);
-    },
-    sendAlert: async () => {},
-    auditLog,
-  });
-
-  // Broadcast response actions
-  for (const action of responseResult.actions) {
-    await broadcaster.broadcastResponseAction(action);
-  }
-
-  // Update registry
-  registry.updateStatus(honeytokens[0].honeytokenId, 'triggered');
-  await broadcaster.broadcastHoneytokenRegistryChange({
-    ...honeytokens[0],
-    status: 'triggered',
-  });
-
-  await sleep(1000);
-
-  // ── Step 5: Generate report ──
-  console.log('');
-  console.log('📋 Step 5: Generating forensic report...');
-
-  // Call Gemini directly to get the raw AI analysis
-  const { createGeminiClientWithFallback } = await import('../src/agent/gemini-report-generator.js');
-  const gemini = createGeminiClientWithFallback();
-  
   let geminiAnalysis = '';
   try {
-    geminiAnalysis = await gemini(`Analyze this security incident:
-- Process: /tmp/.hidden/reverse-shell (PID 31337, root)
-- Pod: pod-payment-7f8d9c, namespace: production
-- File accessed: /var/run/secrets/kubernetes.io/serviceaccount/decoy-token
-- Anomaly score: 0.85, criticality: 4/5
-- Response: pod isolated, IP blocked, 2 additional honeytokens deployed
-
-Provide: 1) Summary 2) Attacker intent 3) Recommended follow-up actions`);
+    geminiAnalysis = await gemini(`Analyze a multi-namespace Kubernetes security incident involving honeytoken access from suspicious processes. Provide: 1) Summary 2) Attacker intent 3) Recommended follow-up actions`);
   } catch {
     geminiAnalysis = '[Gemini unavailable — using fallback report]';
   }
 
-  const report = await reportGenerator.generate({
-    accessEvent: attackEvent,
-    threatAssessment: assessment,
-    responseActions: responseResult.actions,
-  });
-
-  await broadcaster.broadcastForensicReport(report);
-
-  // Also push the gist URL as a separate log entry for the dashboard
-  if (gistUrl) {
-    await logClient.pushAccessEventLog({
-      reportId: report.reportId,
-      gistUrl,
-      geminiReport: geminiAnalysis.substring(0, 500) + '...',
-      timestamp: new Date().toISOString(),
-    } as any);
-  }
-
-  console.log(`   📄 Report: ${report.reportId}`);
-  console.log('');
-  console.log('   ┌──────────────────────────────────────────────────────────────────┐');
-  console.log('   │              🤖 GEMINI AI FORENSIC ANALYSIS                       │');
-  console.log('   └──────────────────────────────────────────────────────────────────┘');
-  console.log('');
-  // Print the full Gemini AI response
-  const lines = geminiAnalysis.split('\n');
-  for (const line of lines) {
-    console.log(`   ${line}`);
-  }
+  console.log(`   [debug] gistToken set: ${!!gistToken}, geminiAvailable: ${!geminiAnalysis.includes('[Gemini unavailable')}`);
   console.log('');
 
-  // Publish to GitHub Gist if token is available
-  const gistToken = process.env.GITHUB_GIST_TOKEN;
-  let gistUrl = '';
-  if (gistToken && geminiAnalysis && !geminiAnalysis.includes('[Gemini unavailable')) {
-    try {
-      const { publishToGist } = await import('../src/utils/gist-publisher.js');
-      const gist = await publishToGist(
-        `incident-${report.reportId}`,
-        geminiAnalysis,
-        gistToken
-      );
-      gistUrl = gist.url;
-      console.log(`   📎 Full report published: ${gistUrl}`);
-      console.log('');
-    } catch (error) {
-      console.log(`   ⚠️  Gist publish failed: ${error instanceof Error ? error.message : error}`);
-    }
-  }
-
-  // ── Step 6: Submit learning outcome ──
-  console.log('');
-  console.log('🧬 Step 6: Submitting to Vertex AI...');
-
-  await learningLoop.submitOutcome(
+  // Define multiple attack scenarios across namespaces
+  const attackScenarios = [
     {
-      incidentId: uuidv4(),
-      accessEvent: attackEvent,
-      honeytokenType: 'decoy_secret',
-      placementLocation: attackEvent.honeytokenPath,
+      label: 'Production — Critical reverse shell',
+      event: {
+        eventId: uuidv4(),
+        processId: 31337,
+        processBinaryPath: '/tmp/.hidden/reverse-shell',
+        userId: 0,
+        podId: 'pod-payment-7f8d9c',
+        namespace: 'production',
+        honeytokenPath: '/var/run/secrets/kubernetes.io/serviceaccount/decoy-token',
+        accessType: 'read' as const,
+        timestamp: new Date().toISOString(),
+      },
+      podContext: {
+        namespace: 'production',
+        namespaceClassification: 'production' as const,
+        serviceCriticality: 4,
+        davisAnomalyScore: 0.85,
+        anomalyWindowMinutes: 10,
+      },
+      honeytokenIdx: 0,
     },
     {
-      actionsTaken: responseResult.actions,
-      effectiveness: {
-        detectionToResponseLatencySeconds: 0.002,
-        threatContained: true,
-        falsePositive: false,
+      label: 'Staging — Suspicious credential scan',
+      event: {
+        eventId: uuidv4(),
+        processId: 8821,
+        processBinaryPath: '/usr/bin/curl',
+        userId: 1000,
+        podId: 'pod-api-stg-a3b4c5',
+        namespace: 'staging',
+        honeytokenPath: '/var/run/secrets/kubernetes.io/serviceaccount/stg-token',
+        accessType: 'read' as const,
+        timestamp: new Date(Date.now() + 5000).toISOString(),
       },
+      podContext: {
+        namespace: 'staging',
+        namespaceClassification: 'non-production' as const,
+        serviceCriticality: 2,
+        davisAnomalyScore: 0.55,
+        anomalyWindowMinutes: 5,
+      },
+      honeytokenIdx: 3,
+    },
+    {
+      label: 'Data — Database credential exfil attempt',
+      event: {
+        eventId: uuidv4(),
+        processId: 4455,
+        processBinaryPath: '/tmp/exfil-agent',
+        userId: 0,
+        podId: 'pod-postgres-j2k3l4',
+        namespace: 'data',
+        honeytokenPath: '/var/secrets/db-master-password',
+        accessType: 'read' as const,
+        timestamp: new Date(Date.now() + 10000).toISOString(),
+      },
+      podContext: {
+        namespace: 'data',
+        namespaceClassification: 'production' as const,
+        serviceCriticality: 5,
+        davisAnomalyScore: 0.92,
+        anomalyWindowMinutes: 3,
+      },
+      honeytokenIdx: 6,
+    },
+    {
+      label: 'Development — Low-severity file stat',
+      event: {
+        eventId: uuidv4(),
+        processId: 12099,
+        processBinaryPath: '/usr/bin/find',
+        userId: 1001,
+        podId: 'pod-devtools-g9h0i1',
+        namespace: 'development',
+        honeytokenPath: '/root/.kube/config',
+        accessType: 'stat' as const,
+        timestamp: new Date(Date.now() + 15000).toISOString(),
+      },
+      podContext: {
+        namespace: 'development',
+        namespaceClassification: 'non-production' as const,
+        serviceCriticality: 1,
+        davisAnomalyScore: 0.2,
+        anomalyWindowMinutes: 30,
+      },
+      honeytokenIdx: 5,
+    },
+    {
+      label: 'Staging — Worker pod write attempt',
+      event: {
+        eventId: uuidv4(),
+        processId: 6677,
+        processBinaryPath: '/bin/sh',
+        userId: 0,
+        podId: 'pod-worker-stg-d6e7f8',
+        namespace: 'staging',
+        honeytokenPath: '/tmp/.aws/credentials',
+        accessType: 'write' as const,
+        timestamp: new Date(Date.now() + 20000).toISOString(),
+      },
+      podContext: {
+        namespace: 'staging',
+        namespaceClassification: 'non-production' as const,
+        serviceCriticality: 3,
+        davisAnomalyScore: 0.7,
+        anomalyWindowMinutes: 8,
+      },
+      honeytokenIdx: 4,
+    },
+  ];
+
+  // Process each attack scenario
+  for (const scenario of attackScenarios) {
+    console.log(`   ─── ${scenario.label} ───`);
+
+    const attackEvent = scenario.event;
+    console.log(`   ⚠️  Attack: PID ${attackEvent.processId} ${attackEvent.accessType} ${attackEvent.honeytokenPath}`);
+
+    // Assess threat
+    const classification = classifyThreat(scenario.podContext);
+    const assessment: ThreatAssessment = {
+      assessmentId: uuidv4(),
+      accessEventId: attackEvent.eventId,
+      classification,
+      inputs: {
+        namespaceClassification: scenario.podContext.namespaceClassification,
+        serviceCriticality: scenario.podContext.serviceCriticality,
+        davisAnomalyScore: scenario.podContext.davisAnomalyScore,
+      },
+      assessmentTimestamp: new Date().toISOString(),
+      assessmentLatencyMs: Math.floor(Math.random() * 5) + 1,
+    };
+
+    console.log(`   🎯 Classification: ${classification.toUpperCase()}`);
+
+    // Broadcast access event
+    await broadcaster.broadcastAccessEvent(attackEvent, classification);
+
+    // Execute response
+    const plan = generateResponsePlan(assessment, {
+      namespace: attackEvent.namespace,
+      podId: attackEvent.podId,
+    });
+
+    const responseResult = await executeResponse(plan, assessment, {
+      isolatePod: async (podId) => {
+        console.log(`   🔒 Pod ${podId} isolated`);
+      },
+      blockIp: async (podId) => {
+        console.log(`   🚫 IP blocked for ${podId}`);
+      },
+      deployHoneytokens: async (ns, count) => {
+        console.log(`   🍯 ${count} additional honeytokens deployed in ${ns}`);
+      },
+      sendAlert: async () => {},
+      auditLog,
+    });
+
+    // Broadcast response actions
+    for (const action of responseResult.actions) {
+      await broadcaster.broadcastResponseAction(action);
     }
-  );
+
+    // Update registry
+    registry.updateStatus(honeytokens[scenario.honeytokenIdx].honeytokenId, 'triggered');
+    await broadcaster.broadcastHoneytokenRegistryChange({
+      ...honeytokens[scenario.honeytokenIdx],
+      status: 'triggered',
+    });
+
+    // Generate forensic report
+    const report = await reportGenerator.generate({
+      accessEvent: attackEvent,
+      threatAssessment: assessment,
+      responseActions: responseResult.actions,
+    });
+
+    // Publish gist
+    let gistUrl = '';
+    if (gistToken && geminiAnalysis) {
+      try {
+        const { publishToGist } = await import('../src/utils/gist-publisher.js');
+        const gist = await publishToGist(
+          `incident-${report.reportId}`,
+          `# Incident Report: ${scenario.label}\n\n${geminiAnalysis}`,
+          gistToken
+        );
+        gistUrl = gist.url;
+        console.log(`   📎 Report: ${gistUrl}`);
+      } catch (error) {
+        console.log(`   ⚠️  Gist failed: ${error instanceof Error ? error.message : error}`);
+      }
+    }
+
+    await broadcaster.broadcastForensicReport(report, { gistUrl: gistUrl || undefined });
+
+    // Broadcast incident timeline
+    const finalOutcome = classification === 'low' ? 'false_positive' as const
+      : classification === 'critical' ? 'escalated' as const
+      : 'contained' as const;
+
+    await broadcaster.broadcastIncidentTimeline({
+      incidentId: uuidv4(),
+      timestamp: attackEvent.timestamp,
+      threatClassification: classification,
+      affectedPodId: attackEvent.podId,
+      namespace: attackEvent.namespace,
+      responseActions: responseResult.actions.map(a => ({
+        actionType: a.actionType,
+        outcome: a.result,
+      })),
+      finalOutcome,
+    });
+
+    console.log(`   ✅ Incident processed: ${finalOutcome}`);
+    console.log('');
+
+    await sleep(1500);
+  }
+
+  // ── Step 3: Submit learning metrics ──
+  console.log('🧬 Step 3: Submitting learning metrics to Vertex AI...');
 
   await broadcaster.broadcastLearningMetrics({
     modelVersionId: vertexTrainer.getCurrentModelVersion().versionId,
@@ -339,21 +458,7 @@ Provide: 1) Summary 2) Attacker intent 3) Recommended follow-up actions`);
     trainingStatus: 'idle',
   });
 
-  // ── Step 7: Broadcast incident timeline ──
-  await broadcaster.broadcastIncidentTimeline({
-    incidentId: uuidv4(),
-    timestamp: attackEvent.timestamp,
-    threatClassification: classification,
-    affectedPodId: attackEvent.podId,
-    namespace: attackEvent.namespace,
-    responseActions: responseResult.actions.map(a => ({
-      actionType: a.actionType,
-      outcome: a.result,
-    })),
-    finalOutcome: 'contained',
-  });
-
-  console.log('   ✅ Outcome submitted');
+  console.log('   ✅ Learning metrics submitted');
 
   // ── Flush all data to Dynatrace ──
   console.log('');

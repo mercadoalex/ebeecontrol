@@ -94,6 +94,7 @@ export interface ForensicReportLogPayload {
   affectedPodId: string;
   namespace: string;
   reportContent: string; // full report serialized as JSON
+  gistUrl?: string; // URL to the full Gemini report published as a GitHub Gist
 }
 
 /**
