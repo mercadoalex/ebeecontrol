@@ -268,6 +268,17 @@ Provide: 1) Summary 2) Attacker intent 3) Recommended follow-up actions`);
   });
 
   await broadcaster.broadcastForensicReport(report);
+
+  // Also push the gist URL as a separate log entry for the dashboard
+  if (gistUrl) {
+    await logClient.pushAccessEventLog({
+      reportId: report.reportId,
+      gistUrl,
+      geminiReport: geminiAnalysis.substring(0, 500) + '...',
+      timestamp: new Date().toISOString(),
+    } as any);
+  }
+
   console.log(`   📄 Report: ${report.reportId}`);
   console.log('');
   console.log('   ┌──────────────────────────────────────────────────────────────────┐');
@@ -280,6 +291,25 @@ Provide: 1) Summary 2) Attacker intent 3) Recommended follow-up actions`);
     console.log(`   ${line}`);
   }
   console.log('');
+
+  // Publish to GitHub Gist if token is available
+  const gistToken = process.env.GITHUB_GIST_TOKEN;
+  let gistUrl = '';
+  if (gistToken && geminiAnalysis && !geminiAnalysis.includes('[Gemini unavailable')) {
+    try {
+      const { publishToGist } = await import('../src/utils/gist-publisher.js');
+      const gist = await publishToGist(
+        `incident-${report.reportId}`,
+        geminiAnalysis,
+        gistToken
+      );
+      gistUrl = gist.url;
+      console.log(`   📎 Full report published: ${gistUrl}`);
+      console.log('');
+    } catch (error) {
+      console.log(`   ⚠️  Gist publish failed: ${error instanceof Error ? error.message : error}`);
+    }
+  }
 
   // ── Step 6: Submit learning outcome ──
   console.log('');
