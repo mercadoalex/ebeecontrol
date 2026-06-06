@@ -243,6 +243,24 @@ async function runLiveDemo() {
   console.log('');
   console.log('📋 Step 5: Generating forensic report...');
 
+  // Call Gemini directly to get the raw AI analysis
+  const { createGeminiClientWithFallback } = await import('../src/agent/gemini-report-generator.js');
+  const gemini = createGeminiClientWithFallback();
+  
+  let geminiAnalysis = '';
+  try {
+    geminiAnalysis = await gemini(`Analyze this security incident:
+- Process: /tmp/.hidden/reverse-shell (PID 31337, root)
+- Pod: pod-payment-7f8d9c, namespace: production
+- File accessed: /var/run/secrets/kubernetes.io/serviceaccount/decoy-token
+- Anomaly score: 0.85, criticality: 4/5
+- Response: pod isolated, IP blocked, 2 additional honeytokens deployed
+
+Provide: 1) Summary 2) Attacker intent 3) Recommended follow-up actions`);
+  } catch {
+    geminiAnalysis = '[Gemini unavailable — using fallback report]';
+  }
+
   const report = await reportGenerator.generate({
     accessEvent: attackEvent,
     threatAssessment: assessment,
@@ -252,10 +270,14 @@ async function runLiveDemo() {
   await broadcaster.broadcastForensicReport(report);
   console.log(`   📄 Report: ${report.reportId}`);
   console.log('');
-  console.log('   ── Gemini AI Forensic Analysis ──');
+  console.log('   ┌──────────────────────────────────────────────────────────────────┐');
+  console.log('   │              🤖 GEMINI AI FORENSIC ANALYSIS                       │');
+  console.log('   └──────────────────────────────────────────────────────────────────┘');
   console.log('');
-  for (const action of report.recommendedFollowUpActions) {
-    console.log(`   → ${action}`);
+  // Print the full Gemini AI response
+  const lines = geminiAnalysis.split('\n');
+  for (const line of lines) {
+    console.log(`   ${line}`);
   }
   console.log('');
 

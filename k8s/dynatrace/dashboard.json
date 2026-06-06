@@ -229,10 +229,17 @@
     },
     "19": {
       "type": "data",
-      "title": "🤖 Gemini AI Forensic Analysis",
-      "query": "fetch logs\n| filter contains(content, \"reportContent\") and contains(content, \"reportId\")\n| parse content, \"JSON:p\"\n| fields timestamp, p[reportId], p[threatClassification], p[affectedPodId], p[reportContent]\n| sort timestamp desc\n| limit 5",
+      "title": "🤖 Last Gemini AI Forensic Analysis",
+      "query": "fetch logs\n| filter contains(content, \"reportContent\")\n| sort timestamp desc\n| limit 1\n| fields content",
       "visualization": "table",
-      "visualizationSettings": {},
+      "visualizationSettings": {
+        "table": {
+          "columnTypeOverrides": [
+            {"fields": ["content"], "id": 1780702580694, "value": "log-content", "disableRemoval": true}
+          ],
+          "columnWidths": {"[\"content\"]": 2400}
+        }
+      },
       "davis": { "enabled": false }
     },
     "20": {
@@ -261,7 +268,7 @@
     "16": { "x": 12, "y": 18, "w": 12, "h": 4 },
     "17": { "x": 0,  "y": 22, "w": 24, "h": 1 },
     "18": { "x": 0,  "y": 23, "w": 24, "h": 7 },
-    "19": { "x": 0,  "y": 30, "w": 24, "h": 7 },
-    "20": { "x": 0,  "y": 37, "w": 24, "h": 2 }
+    "19": { "x": 0,  "y": 30, "w": 24, "h": 20 },
+    "20": { "x": 0,  "y": 50, "w": 24, "h": 2 }
   }
 }
