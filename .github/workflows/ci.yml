@@ -29,3 +29,14 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Notify OllinAI
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          PAYLOAD='{"commitShas":["${{ github.sha }}"],"author":"${{ github.actor }}","services":["other-repo-name"],"deploymentTimestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'","environment":"production"}'
+          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "${{ secrets.OLLINAI_SECRET_KEY }}" -binary | xxd -p -c 256)
+          curl -s -X POST "https://ollin-ai.vercel.app/api/webhooks/deployments" \
+            -H "Content-Type: application/json" \
+            -H "X-OllinAI-Signature: $SIGNATURE" \
+            -H "X-OllinAI-Integration: ${{ secrets.OLLINAI_TENANT_ID }}:${{ secrets.OLLINAI_INTEGRATION_ID }}" \
+            -d "$PAYLOAD"
