@@ -150,7 +150,7 @@ export function createComponents(
 
   // Wire report generator (uses real Gemini with fallback)
   const reportGenerator = createReportGenerator(
-    createGeminiClientWithFallback({ projectId: config.notifications.channelEndpoint ? 'ebeecontrol' : undefined })
+    createGeminiClientWithFallback()
   );
 
   return {
